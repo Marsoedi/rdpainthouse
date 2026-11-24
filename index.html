@@ -58,6 +58,14 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 .szs button small{display:block;font-weight:500;font-size:13px;color:var(--mut)}
 .szs button.on{border-color:var(--blue);background:var(--bluesoft)}
 .szs button.on.pr{border-color:var(--red);background:var(--redsoft)}
+.bnd{width:100%;border-top:1px dashed var(--line);padding-top:10px;margin-top:4px}
+.bnd b.h{display:block;color:var(--ink);font-size:15px;margin-bottom:6px}
+.bds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.bds button{min-height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:600 14px Barlow,sans-serif;cursor:pointer;padding:4px}
+.bds button.on{border-color:var(--blue);background:var(--bluesoft)}
+.bds button:disabled{opacity:.45;cursor:not-allowed}
+.bnd label.ok{margin-top:6px;color:var(--ink)}
+.bnd input:disabled+span{opacity:.45}
 .swn{width:100%;font-size:13px;line-height:1.45;color:var(--mut);margin:0}
 .swn.w{color:var(--red);font-weight:600}
 .qty{display:flex;align-items:center;gap:6px}
@@ -193,6 +201,17 @@ const SWINGARM={dp:{S:250000,M:325000,L:475000},pr:{S:325000,M:425000,L:575000}}
 const SW_UK={S:'Small',M:'Medium',L:'Large',C:'Custom / moge / tidak standar'};
 const SW_NOTE='Harga untuk pengecatan warna solid standar, kondisi normal. Belum termasuk bongkar-pasang, perbaikan kerusakan, pengelupasan cat berat, atau finishing khusus.';
 const SW_CONSULT='Harga berdasarkan pemeriksaan / konsultasi admin.';
+/* Diskon bundling swingarm: konfigurasi terpusat */
+const BUNDLE={
+  opsi:[0,25000,50000],
+  label:{0:'Tanpa diskon',25000:'Rp25.000',50000:'Rp50.000'},
+  nama:{25000:'Bundling Standar',50000:'Bundling Maksimal'},
+  syaratIds:['fb','rg','rgn','rgm','bk','bkm','bkn','pb','pbr','tk','kl','bh','sh','cvt'],
+  velgWarna:['std'],
+  info:'Diskon khusus pengecatan bersamaan, warna sama, dan atas persetujuan admin.',
+  konfirmasi:'Saya memastikan pengerjaan ini memenuhi ketentuan bundling.',
+  syaratTeks:'Aktif jika swingarm dikerjakan bersama full body, rangka, atau komponen cat lain dalam penawaran ini.'
+};
 const SW=sizes=>({id:'sw',n:'Cat Swingarm / Arm Belakang',sw:sizes,rem:50000,remN:'Remover swingarm'});
 const SH={id:'sh',n:'Shock depan (2 pcs)',p:150000,rem:25000,cepat:1};
 const BH={id:'bh',n:'Behel',p:125000,cepat:1};
@@ -282,12 +301,30 @@ function drawChips(){
   $('contoh').textContent=K().contoh;
 }
 function drawSeg(){for(const b of $('seg').children)b.classList.toggle('on',b.dataset.c===cat)}
+function bundleOk(){
+  const s=sel.sw;if(!s||!s.on||!s.size||s.size==='C')return false;
+  if(K().items.some(it=>it.id!=='sw'&&BUNDLE.syaratIds.includes(it.id)&&sel[it.id]&&sel[it.id].on))return true;
+  return !!$('vRing').value&&BUNDLE.velgWarna.includes($('vWarna').value);
+}
+function syncBundle(){if(sel.sw&&!bundleOk()){sel.sw.bd=0;sel.sw.ok=false}}
+function bundleNow(){const s=sel.sw;return bundleOk()&&s.ok&&s.bd?s.bd:0}
+function bundleUI(s){
+  const ok=bundleOk(),bd=s.bd||0;
+  let msg=BUNDLE.info;
+  if(!ok)msg=s.size==='C'?'Diskon bundling tidak berlaku untuk swingarm custom / moge.':BUNDLE.syaratTeks;
+  else if(bd&&!s.ok)msg='Centang konfirmasi admin supaya diskon diterapkan.';
+  else if(bd&&s.ok)msg=BUNDLE.nama[bd]+' diterapkan: -'+rp(bd)+'. '+BUNDLE.info;
+  return `<div class="bnd"><b class="h">Diskon Bundling Swingarm</b><div class="bds" role="group" aria-label="Diskon bundling swingarm">${BUNDLE.opsi.map(v=>`<button type="button" data-bd="${v}" class="${bd===v?'on':''}"${ok?'':' disabled'}>${BUNDLE.label[v]}</button>`).join('')}</div>`+
+    `<label class="ok"><input type="checkbox" data-bok="1"${s.ok?' checked':''}${ok?'':' disabled'}><span>${BUNDLE.konfirmasi}</span></label>`+
+    `<p class="swn${ok&&bd&&!s.ok?' w':''}">${msg}</p></div>`;
+}
 function swLabel(it,s){
   if(s.on&&s.size)return s.size==='C'?'Konsultasi':rp(SWINGARM[cat][s.size]);
   if(it.sw.length===1)return 'Konsultasi';
   return rp(SWINGARM[cat].S)+'–'+rp(SWINGARM[cat].L).slice(2);
 }
 function drawItems(){
+  syncBundle();
   $('items').innerHTML=K().items.map(it=>{
     const s=sel[it.id]||{};
     const tag=(typeof it.p==='object'||it.sw)?'<span class="tag '+cat+'">'+CNAMA[cat]+'</span>':'';
@@ -296,7 +333,7 @@ function drawItems(){
       sub='<div class="sub">'+
         (it.sw?'<div class="szs" role="group" aria-label="Ukuran swingarm">'+it.sw.map(z=>`<button type="button" data-sz="${z}" class="${s.size===z?'on '+cat:''}">${z==='C'?'Custom / moge':SW_UK[z]}<small>${z==='C'?'Konsultasi admin':rp(SWINGARM[cat][z])}</small></button>`).join('')+'</div>'+
           (s.size?'':'<p class="swn w">Pilih ukuran swingarm dulu.</p>')+
-          `<p class="swn">${s.size==='C'?SW_CONSULT+' ':''}${SW_NOTE}</p>`:'')+
+          `<p class="swn">${s.size==='C'?SW_CONSULT+' ':''}${SW_NOTE}</p>`+bundleUI(s):'')+
         (it.q?`<span class="qty">Jumlah body <button type="button" data-m="${it.id}" aria-label="Kurangi">−</button><b>${s.qty||1}</b><button type="button" data-p="${it.id}" aria-label="Tambah">+</button></span>`:'')+
         (it.rem?`<label><input type="checkbox" data-r="${it.id}"${s.rem?' checked':''}> ${it.remN||'Remover'} +${rp(it.rem)}</label>`:'')+
         (it.ex?`<label><input type="checkbox" data-x="${it.id}"${s.ex?' checked':''}> ${it.ex.n} +${rp(it.ex.p)}</label>`:'')+
@@ -306,14 +343,22 @@ function drawItems(){
   }).join('');
 }
 function hitung(){
-  const lines=[];let total=0,halus=false,adaBesar=false,adaCepat=false,swOn=false,swPend=false;
+  const lines=[];let total=0,halus=false,adaBesar=false,adaCepat=false,swOn=false,swPend=false,bundle=0;
   for(const it of K().items){
     const s=sel[it.id];if(!s||!s.on)continue;
     if(it.sw){
       swOn=true;adaBesar=true;
       if(!s.size){lines.push({n:it.n,t:'Pilih ukuran',w:1});swPend=true}
       else if(s.size==='C'){lines.push({n:it.n+' (custom / moge / tidak standar)',t:'Konsultasi admin'});swPend=true}
-      else{const h=SWINGARM[cat][s.size];total+=h;lines.push({n:`${it.n} (${SW_UK[s.size]}, ${CNAMA[cat]})`,v:h})}
+      else{
+        const h=SWINGARM[cat][s.size],bd=bundleNow();
+        if(bd){total+=h-bd;bundle=bd;
+          lines.push({n:`Cat Swingarm ${SW_UK[s.size]} — ${CNAMA[cat]}`,t:''});
+          lines.push({n:'Harga normal',v:h,s:1,pre:''});
+          lines.push({n:'Diskon bundling ('+BUNDLE.nama[bd]+')',t:'-'+rp(bd),s:1,pre:'',d:1});
+          lines.push({n:'Subtotal swingarm',v:h-bd,s:1,pre:''});
+        }else{total+=h;lines.push({n:`Cat Swingarm ${SW_UK[s.size]} — ${CNAMA[cat]}`,v:h})}
+      }
       if(s.rem){total+=it.rem;lines.push({n:it.remN,v:it.rem,s:1})}
       continue;
     }
@@ -336,7 +381,7 @@ function hitung(){
   else if(velg&&$('vKond').value==='rep')est='48 jam';
   else if(velg||adaCepat)est='24 jam';
   const dpP=parseInt($('dp').value,10)||0,tot=sub-d,dpv=Math.round(tot*dpP/100/1000)*1000;
-  return {swOn,swPend,lines,sub,d,total:tot,dpP,dpv,sisa:tot-dpv,est,gar:halus?GAR[cat]:(lines.length?'Tidak bergaransi (bukan body halus)':'-')};
+  return {bundle,swOn,swPend,lines,sub,d,total:tot,dpP,dpv,sisa:tot-dpv,est,gar:halus?GAR[cat]:(lines.length?'Tidak bergaransi (bukan body halus)':'-')};
 }
 function teks(r){
   const nm=$('nama').value.trim(),mt=$('motor').value.trim();
@@ -348,7 +393,7 @@ function teks(r){
   out.push('Kelas cat: '+CNAMA[cat]+' ('+CBAHAN[cat]+')');
   const ct=$('catatan').value.trim();if(ct)out.push('Catatan: '+ct);
   out.push('','*Rincian*');
-  for(const l of r.lines)out.push((l.s?'  + ':'• ')+l.n+': '+(l.t||rp(l.v)));
+  for(const l of r.lines)out.push((l.s?'  '+(l.pre??'+ '):'• ')+l.n+(l.t===''?'':': '+(l.t!==undefined?l.t:rp(l.v))));
   if(r.swOn){out.push('');out.push('Catatan swingarm: '+SW_NOTE);if(r.swPend)out.push('Harga swingarm custom / belum ditentukan: '+SW_CONSULT+' Belum masuk total.')}
   out.push('');
   if(r.d){out.push('Subtotal: '+rp(r.sub));out.push('Diskon: -'+rp(r.d))}
@@ -370,7 +415,7 @@ function render(){
   const meta=K().nama+' · '+CNAMA[cat];
   $('nMeta').textContent=meta;$('bMeta').textContent=meta;
   $('nTotal').textContent=rp(r.total);$('bTotal').textContent=rp(r.total);
-  let h=r.lines.map(l=>`<li class="${l.s?'s':''}"><span>${l.s?'+ ':''}${l.n}</span><span>${l.t||rp(l.v)}</span></li>`).join('');
+  let h=r.lines.map(l=>`<li class="${l.s?'s':''}${l.d?' d':''}"><span>${l.s?(l.pre??'+ '):''}${l.n}</span><span>${l.t!==undefined?l.t:rp(l.v)}</span></li>`).join('');
   if(r.d)h+=`<li><span>Subtotal</span><span>${rp(r.sub)}</span></li><li class="d"><span>Diskon</span><span>-${rp(r.d)}</span></li>`;
   $('nLines').innerHTML=h||'<li class="empty">Belum ada item. Centang item di sebelah kiri.</li>';
   $('nBen').innerHTML=BEN().map(b=>'<li>'+b.replace('&','&amp;')+'</li>').join('');$('nEst').textContent=r.est;$('nGar').textContent=r.gar;
@@ -389,6 +434,7 @@ $('seg').addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(!b
 $('items').addEventListener('change',e=>{
   const t=e.target,d=t.dataset;
   if(d.i){sel[d.i]=Object.assign(sel[d.i]||{},{on:t.checked});if(t.checked&&!sel[d.i].qty)sel[d.i].qty=1;{const it=K().items.find(x=>x.id===d.i);if(it&&it.sw&&it.sw.length===1)sel[d.i].size=it.sw[0]}drawItems()}
+  else if(d.bok){sel.sw.ok=t.checked;drawItems()}
   else if(d.r){sel[d.r].rem=t.checked}
   else if(d.x){sel[d.x].ex=t.checked}
   render();
@@ -396,11 +442,12 @@ $('items').addEventListener('change',e=>{
 $('items').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;e.preventDefault();
   if(b.dataset.sz){sel.sw.size=b.dataset.sz;drawItems();render();return}
+  if(b.dataset.bd!==undefined){if(!b.disabled){sel.sw.bd=parseInt(b.dataset.bd,10)||0;drawItems();render()}return}
   const id=b.dataset.m||b.dataset.p;const s=sel[id];
   s.qty=Math.max(1,Math.min(20,(s.qty||1)+(b.dataset.p?1:-1)));drawItems();render();
 });
 for(const id of ['nama','motor','nopol','nowa','catatan','disk'])$(id).addEventListener('input',render);
-for(const id of ['vRing','vWarna','vKond','vRem','dp'])$(id).addEventListener('change',render);
+for(const id of ['vRing','vWarna','vKond','vRem','dp'])$(id).addEventListener('change',()=>{if(sel.sw&&sel.sw.on)drawItems();render()});
 $('copy').addEventListener('click',async()=>{
   const t=$('txt').value;
   try{await navigator.clipboard.writeText(t);$('msg').textContent='Teks sudah disalin, tinggal tempel di WA.';$('txt').style.display='none'}
