@@ -6,3 +6,6 @@ Kalkulator margin cat Doyeng Paint (mitra): `margin/` → https://marsoedi.githu
 
 Price list cat untuk sales (tanpa HPP): `harga/` → https://marsoedi.github.io/rdpainthouse/harga/
 Harga jual disimpan di `harga/harga.json`. Perbarui lewat tombol "Salin harga jual untuk price list sales" di kalkulator margin.
+
+Aplikasi penjualan cat untuk sales (katalog, pesanan, kirim penawaran ke WA customer): `jual/` → https://marsoedi.github.io/rdpainthouse/jual/
+Harga jual 100/250/500 ml tertanam di `jual/index.html` (dari file MARGIN_CAT_DOYENG.xlsx, 26 Nov 2026).
