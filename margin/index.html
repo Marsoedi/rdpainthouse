@@ -150,6 +150,9 @@ td.na{color:var(--mut)}
       <div><label class="f" for="tShow">Tampilkan</label><select id="tShow"><option value="all">Semua warna</option><option value="ada">Yang sudah ada harga eceran</option></select></div>
     </div>
     <div class="scroll"><table class="stack"><thead><tr><th data-s="n">Warna</th><th data-s="m">Modal</th><th data-s="e">Eceran Doyeng</th><th data-s="j">Harga jual</th><th data-s="u">Untung</th><th data-s="p">Margin</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <div style="margin-top:12px"><button class="btn" type="button" id="exp">Salin harga jual untuk price list sales</button>
+    <textarea id="expTxt" readonly style="display:none;width:100%;min-height:120px;margin-top:8px;font:13px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--card);color:var(--ink)"></textarea>
+    <p class="note" id="expMsg">Berisi harga jual saja (tanpa HPP) untuk semua warna dan ukuran yang sudah ada harganya. Tempel hasilnya ke file harga/harga.json di GitHub.</p></div>
     <p class="note">Ketuk baris untuk membuka warna itu di kalkulator. Harga eceran awal diambil dari toko doyengpaint123 di Tokopedia/TikTok Shop, 25 Nov 2026.</p>
   </div>
 </div>
@@ -227,6 +230,11 @@ function drawTable(){
   R.sort((a,b)=>{const A=key[sortK](a),B=key[sortK](b);return(A>B?1:A<B?-1:0)*sortD});
   $('tb').innerHTML=R.map(({c,r})=>`<tr data-n="${esc(c.n)}"><td>${esc(c.n)}</td><td>${rp(r.modal)}</td><td class="${r.e==null?'na':''}">${r.e==null?'-':rp(r.e)}</td><td class="${r.jual==null?'na':''}">${r.jual==null?'-':rp(r.jual)}</td><td class="${r.u==null?'na':r.u<0?'neg':'pos'}">${r.u==null?'-':rp(r.u)}</td><td class="${r.m==null?'na':r.m<0?'neg':'pos'}">${r.m==null?'-':pc(r.m)}</td></tr>`).join('');
 }
+function exportJual(){
+  const out={};for(const c of C)for(const s of sizesOf(c)){const r=calc(c,s);if(r.jual!=null&&r.jual>0){(out[c.n]=out[c.n]||{})[String(s)]=Math.round(r.jual)}}
+  const d=new Date(),iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return JSON.stringify({diperbarui:iso,harga:out},null,1);
+}
 function all(){drawList();drawSizes();fillInputs();render();save('rdpm-cur',cur);save('rdpm-size',size)}
 function setInputs(){$('sOng').value=S.ong;$('sBrt').value=S.brt;$('sPot').value=S.pot;tot()}
 function tot(){$('sTot').value=rp(S.ong*S.brt)}
@@ -241,7 +249,10 @@ $('sug').addEventListener('click',e=>{const b=e.target.closest('[data-j]');if(!b
 $('qty').addEventListener('input',render);
 for(const [id,k] of [['sOng','ong'],['sBrt','brt'],['sPot','pot']])$(id).addEventListener('input',e=>{const v=parseFloat(e.target.value);if(v>=0){S[k]=v;save('rdpm-set3',S);tot();render()}});
 $('resetSet').addEventListener('click',()=>{S=Object.assign({},DEF);save('rdpm-set3',S);setInputs();render()});
-$('tSize').addEventListener('change',drawTable);$('tShow').addEventListener('change',drawTable);
+$('tSize').addEventListener('change',drawTable);
+$('exp').addEventListener('click',async()=>{const t=exportJual();$('expTxt').value=t;
+  try{await navigator.clipboard.writeText(t);$('expMsg').textContent='Sudah disalin. Tempel ke file harga/harga.json di GitHub, lalu simpan.';$('expTxt').style.display='none'}
+  catch(e){$('expTxt').style.display='block';$('expTxt').select();$('expMsg').textContent='Salin manual dari kotak di atas.'}});$('tShow').addEventListener('change',drawTable);
 document.querySelector('thead').addEventListener('click',e=>{const t=e.target.closest('[data-s]');if(!t)return;const k=t.dataset.s;sortD=sortK===k?-sortD:(k==='n'?1:-1);sortK=k;drawTable()});
 $('tb').addEventListener('click',e=>{const tr=e.target.closest('tr');if(!tr)return;cur=tr.dataset.n;size=+$('tSize').value;$('cari').value='';all();$('res').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'})});
 setInputs();all();

@@ -1,0 +1,55 @@
+{
+ "diperbarui": "2026-11-26",
+ "harga": {
+  "Oval Red": {
+   "100": 231500,
+   "500": 565500
+  },
+  "Queen Red": {
+   "500": 391500
+  },
+  "Queen Dark Olive": {
+   "250": 365500
+  },
+  "Oval Orange": {
+   "100": 256500
+  },
+  "Millenium Rose": {
+   "250": 235500
+  },
+  "Moonlight Blue": {
+   "100": 185500
+  },
+  "Moonlight Red": {
+   "100": 185500,
+   "250": 265500,
+   "1000": 646500
+  },
+  "Moonlight Purple": {
+   "250": 265500,
+   "1000": 646500
+  },
+  "Moonlight Green": {
+   "250": 265500,
+   "1000": 646500
+  },
+  "Golden Pink": {
+   "500": 445500
+  },
+  "Machine Grey": {
+   "500": 601500
+  },
+  "Silver Chrome": {
+   "250": 411500
+  },
+  "Bunglon Love Girl": {
+   "250": 765500
+  },
+  "Bunglon Goblin": {
+   "250": 765500
+  },
+  "Bunglon Black to Red": {
+   "100": 461500
+  }
+ }
+}
