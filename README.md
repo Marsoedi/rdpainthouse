@@ -9,3 +9,6 @@ Harga jual disimpan di `harga/harga.json`. Perbarui lewat tombol "Salin harga ju
 
 Aplikasi penjualan cat untuk sales (katalog, pesanan, kirim penawaran ke WA customer): `jual/` → https://marsoedi.github.io/rdpainthouse/jual/
 Harga jual 100/250/500 ml tertanam di `jual/index.html` (dari file MARGIN_CAT_DOYENG.xlsx, 26 Nov 2026).
+
+Kalkulator repaint mobil untuk sales (pilih merek/model → kategori otomatis → panel → kirim penawaran WA, menu Admin/Owner): `mobil/` → https://marsoedi.github.io/rdpainthouse/mobil/
+Database 387 model mobil (33 merek) dari Master_Klasifikasi_Mobil_RD_Paint_House_2026.xlsx (27 Nov 2026) tertanam di `mobil/index.html`; perubahan oleh Owner disimpan di HP masing-masing.

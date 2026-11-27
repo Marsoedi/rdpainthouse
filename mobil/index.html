@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16171a">
+<title>R&amp;D Paint House – Kalkulator Repaint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: bengkel premium, tegas, ramah untuk karyawan non-teknis
+   IDEA: kartu estimasi bengkel — daftar pekerjaan dengan total besar di bawah
+   PICTURE: siluet mobil kecil yang menyala emas di panel yang dipilih
+   COLOUR and TYPE: charcoal + emas, latar terang; Plus Jakarta Sans
+   LAYOUT: satu kolom HP, tombol besar, bar total menempel di bawah */
+:root{color-scheme:light dark;
+--bg:light-dark(#f3f2ee,#0f1012);--card:light-dark(#ffffff,#1a1b1f);--ink:light-dark(#16171a,#f0eee8);--mute:light-dark(#62646b,#a1a3aa);--line:light-dark(#e1dfd8,#2d2f35);
+--char:#16171a;--gold:#e5b437;--gtext:light-dark(#86610f,#f0c862);--gsoft:light-dark(#fcf5e1,#2a2413);
+--ok:light-dark(#1d7a48,#62d39c);--warn:light-dark(#9a5800,#f3b35b);--bad:light-dark(#b3261e,#ff8a80);
+--glass:light-dark(#d3d9e0,#3b424c);--carbase:light-dark(#c6c4bd,#55575e);--wheel:light-dark(#2a2b2f,#0b0b0c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance}
+h2{font-size:20px;font-weight:800}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.mute{color:var(--mute)}
+.small{font-size:14px}
+.tiny{font-size:13px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--char);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 0 10px}
+.top .wrap{display:flex;align-items:center;gap:10px;min-height:44px}
+.top b{display:block;font-size:17px;line-height:1.2}
+.top small{display:block;color:#c9c7c0;font-size:13px}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:0;background:#2a2c31;color:#fff;display:grid;place-items:center;flex:none}
+.iconbtn svg{width:22px;height:22px}
+.steps{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.steps i{height:4px;border-radius:4px;background:#3a3c42}
+.steps i.on{background:var(--gold)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--gsoft);color:var(--gtext);white-space:nowrap}
+.badge.grey{background:light-dark(#ecebe6,#2a2c31);color:var(--mute)}
+.badge.ok{background:light-dark(#e3f4ea,#163222);color:var(--ok)}
+.badge.warn{background:light-dark(#fdf0dc,#33270f);color:var(--warn)}
+.badge.bad{background:light-dark(#fbe6e4,#3a1c1a);color:var(--bad)}
+/* home */
+.hero{background:var(--char);color:#fff;padding:calc(env(safe-area-inset-top) + 18px) 0 26px;border-radius:0 0 28px 28px}
+.logo{background:#fff;border-radius:20px;padding:14px 18px;display:block}
+.logo img{display:block;width:100%;height:auto}
+.hero h1{font-size:clamp(28px,8vw,36px);font-weight:800;margin-top:20px}
+.hero p{color:#d6d4cd;margin-top:6px}
+.home{display:grid;gap:12px;padding-top:18px;padding-bottom:32px}
+.salesbox{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 8px 8px 14px}
+.salesbox label{flex:none;font-size:14px;font-weight:700;color:var(--mute);white-space:nowrap}
+.salesbox input{border:0;background:transparent;height:44px;font-size:17px;font-weight:600;width:100%;outline:none}
+.btn{min-height:52px;border-radius:14px;border:0;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px 16px;text-decoration:none;text-align:center;line-height:1.2}
+.btn svg{width:22px;height:22px;flex:none}
+.btn.xl{min-height:64px;font-size:19px;border-radius:18px}
+.gold{background:var(--gold);color:#16171a}
+.dark{background:light-dark(#16171a,#2a2c31);color:#fff}
+.ghost{background:var(--card);border:1.5px solid var(--line);color:var(--ink)}
+.wa{background:#1fa855;color:#fff}
+.btn[disabled],.btn.off{opacity:.45;cursor:not-allowed}
+.btn .cnt{background:var(--gold);color:#16171a;border-radius:999px;font-size:14px;padding:1px 9px}
+.linkbtn{background:none;border:0;color:var(--mute);font-weight:600;text-decoration:underline;min-height:44px;padding:0 8px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* forms */
+main.page{padding-top:16px;padding-bottom:140px;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.field{display:grid;gap:6px}
+.field>span{font-size:14px;font-weight:700;color:var(--mute)}
+.field>span em{font-style:normal;font-weight:500}
+.inp{width:100%;height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);padding:0 14px;font-size:17px;outline:none}
+.inp:focus{border-color:var(--gold)}
+textarea.inp{height:auto;min-height:110px;padding:12px 14px;line-height:1.45;font-size:15px}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 20px) 22px,calc(100% - 14px) 22px;background-size:6px 6px;background-repeat:no-repeat;padding-right:36px}
+.hint{font-size:13.5px;color:var(--mute);min-height:20px}
+.hint.ok{color:var(--ok)}.hint.bad{color:var(--bad)}
+.err{color:var(--bad);font-size:14px;font-weight:600}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips.scroll .chip{flex:none}
+.chip{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#16171a}
+.chip.sm{min-height:38px;padding:0 12px;font-size:14px}
+.chip[disabled]{opacity:.4}
+.dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.2);flex:none}
+/* car pick */
+.results{display:grid;gap:6px;margin-top:8px}
+.res{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:50px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);text-align:left;font-size:16px;font-weight:600}
+.carpick{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--gsoft);border:1.5px solid var(--gold)}
+.carpick div{flex:1}
+.carpick b{display:block;font-size:17px}
+/* panels */
+.sizebar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.plist{display:grid;gap:10px}
+.prow{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px}
+.prow.on{border-color:var(--gold);background:var(--gsoft)}
+.prow .main{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:10px;align-items:center}
+.prow .ic{width:62px;height:34px}
+.prow .ic svg{width:100%;height:100%;display:block}
+.prow b{display:block;font-size:16px;line-height:1.25}
+.prow .pr{font-size:14px;color:var(--mute)}
+.prow .sub{font-weight:800;color:var(--gtext);font-size:15px;display:flex;justify-content:space-between;gap:10px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center}
+.stepper button.plus{background:var(--char);color:#fff;border-color:var(--char)}
+:root[data-theme=dark] .stepper button.plus{background:var(--gold);color:#16171a;border-color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .stepper button.plus{background:var(--gold);color:#16171a;border-color:var(--gold)}}
+.stepper button[disabled]{opacity:.35}
+.stepper output{min-width:28px;text-align:center;font-size:19px;font-weight:800}
+.pos{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.other{display:grid;gap:8px;padding:12px;border-radius:14px;border:1.5px solid var(--gold);background:var(--gsoft)}
+.other .row{display:grid;grid-template-columns:minmax(0,1fr) 92px 44px;gap:8px;align-items:end}
+.xbtn{width:44px;height:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:20px}
+/* options step 3 */
+.opt{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:12px}
+.opt.on{border-color:var(--gold);background:var(--gsoft)}
+.opt>button.head{all:unset;cursor:pointer;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:44px}
+.opt>button.head:focus-visible{outline:3px solid var(--gold);border-radius:8px}
+.box{width:28px;height:28px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;background:var(--card)}
+.opt.on .box{background:var(--gold);border-color:var(--gold);color:#16171a}
+.box svg{width:18px;height:18px}
+.opt b{display:block;font-size:16px}
+.opt .d{font-size:14px;color:var(--mute)}
+.opt .amt{font-weight:800;color:var(--gtext);font-size:15px;text-align:right}
+.calcline{font-size:14px;color:var(--mute);background:light-dark(#f6f5f1,#141518);border-radius:10px;padding:8px 12px}
+.upsell{background:var(--char);color:#fff;border-radius:18px;padding:16px;display:grid;gap:12px}
+.upsell .chip{background:#24262b;border-color:#3a3c42;color:#fff}
+.upsell .chip.on{background:var(--gold);border-color:var(--gold);color:#16171a}
+.upsell .note{font-size:13.5px;color:#cfcdc6}
+.pkg{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;min-height:52px;padding:8px 14px;border-radius:12px;border:1.5px solid #3a3c42;background:#24262b;color:#fff;text-align:left}
+.pkg.on{border-color:var(--gold);background:#2f2a1a}
+/* result */
+.sum{display:grid;gap:2px}
+.sum .who{font-size:20px;font-weight:800}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td:last-child{text-align:right;padding-left:12px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl tr.sec td{text-align:left!important;padding-left:0!important;padding-top:14px;border-bottom:0;font-size:13px;font-weight:800;color:var(--mute);text-transform:none}
+.tbl tr.st td{font-weight:800}
+.tbl .sm{display:block;font-size:13px;color:var(--mute);font-weight:500}
+.tbl .pend{color:var(--warn);font-weight:700}
+.tbl .neg{color:var(--ok)}
+.bigtotal{background:var(--char);color:#fff;border-radius:20px;padding:18px 18px 20px}
+.bigtotal small{color:#c9c7c0;font-size:14px;font-weight:600;display:block}
+.bigtotal .amt{font-size:clamp(34px,11vw,50px);font-weight:800;color:var(--gold);line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bigtotal .row2{display:flex;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #33353b;font-size:15px}
+.bigtotal .note{font-size:13px;color:#d9b45a;margin-top:10px}
+.actions{display:grid;gap:10px}
+.actions .grid2 .btn{font-size:15px;min-height:52px}
+.warnbox{background:light-dark(#fdf0dc,#2d2410);color:var(--warn);border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600}
+.infobox{background:light-dark(#efeee9,#1d1e22);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--mute)}
+/* total bar */
+.totalbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--char);color:#fff;padding:12px 0 calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+.totalbar .wrap{display:flex;align-items:center;gap:12px}
+.totalbar .t{flex:1}
+.totalbar small{display:block;color:#c9c7c0;font-size:13px}
+.totalbar b{display:block;font-size:24px;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.15}
+.totalbar .btn{width:auto;min-width:132px}
+.totalbar .back{width:auto;min-width:0;background:#2a2c31;color:#fff;padding:10px 14px}
+/* history */
+.qcard{display:grid;gap:6px;text-align:left;width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.qcard .r1{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.qcard b{font-size:17px}
+.qcard .tot{font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qcard .meta{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13.5px;color:var(--mute);align-items:center}
+.empty{text-align:center;padding:30px 16px;color:var(--mute)}
+details.card summary{cursor:pointer;font-weight:700;min-height:28px}
+.rev{border-top:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px;font-size:14px}
+/* price list */
+.ptbl{width:100%;border-collapse:collapse;font-size:14px}
+.ptbl th,.ptbl td{padding:9px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ptbl th:first-child,.ptbl td:first-child{text-align:left;white-space:normal}
+.ptbl th{font-size:12.5px;color:var(--mute);font-weight:800}
+.mlist{display:flex;flex-wrap:wrap;gap:6px}
+.mlist span{font-size:14px;background:light-dark(#efeee9,#25272c);border-radius:8px;padding:4px 10px}
+/* admin */
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.tabs .chip{flex:none}
+.aprow{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.aprow:last-child{border-bottom:0}
+.p4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.p4 label{display:grid;gap:2px;font-size:12px;font-weight:700;color:var(--mute)}
+.p4 .inp{height:46px;font-size:15px;padding:0 8px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 96px 44px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.mrow .inp{height:44px;font-size:15px}
+.mrow .xbtn{height:44px}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px}
+.sw{position:relative;width:54px;height:32px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:.2s}
+.sw span::after{content:"";position:absolute;width:26px;height:26px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw input:checked+span{background:var(--gold)}
+.sw input:checked+span::after{left:25px}
+.sw input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+/* car picker v2 */
+.searchbox .inp{height:58px;font-size:18px;border-width:2px;border-color:var(--gold)}
+.sect{display:grid;gap:8px;margin-top:4px}
+.lbl{font-size:13px;font-weight:800;color:var(--mute);margin:0}
+.mono{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--char);color:var(--gold);font-weight:800;font-size:12.5px;letter-spacing:.02em;flex:none;vertical-align:middle}
+.mono.lg{width:48px;height:48px;font-size:16px;border-radius:14px;background:#2a2c31}
+.bgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.brand{display:grid;justify-items:center;gap:4px;padding:12px 6px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:14.5px;text-align:center;min-height:96px}
+.brand small{font-size:12px;color:var(--mute);font-weight:500}
+.brand:active,.res:active{border-color:var(--gold)}
+.res .rb{display:flex;gap:6px;flex:none}
+.carcard{background:var(--char);color:#fff;border-radius:20px;padding:16px;display:grid;gap:12px}
+.cc-top{display:flex;align-items:center;gap:12px}
+.cc-top b{display:block;font-size:22px;line-height:1.15}
+.chip.dk{background:#2a2c31;border-color:#3a3c42;color:#fff}
+.catbig small{display:block;color:#c9c7c0;font-size:13px;font-weight:600}
+.catbig strong{display:block;font-size:clamp(36px,11vw,48px);line-height:1.05;color:var(--gold);font-weight:800;letter-spacing:.01em}
+.warns{margin:0;padding:10px 12px 10px 28px;border-radius:12px;background:rgba(229,180,55,.12);color:#f2d27a;font-size:14px;display:grid;gap:4px}
+.card .warns,.sheet .warns{background:light-dark(#fdf0dc,#2d2410);color:var(--warn)}
+.carstrip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.carstrip>div{flex:1;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.carstrip b{font-size:16px}
+.catpill{font-weight:800;font-size:15px;padding:6px 12px;border-radius:10px;background:var(--char);color:var(--gold);white-space:nowrap}
+.catpill.sp{background:light-dark(#fdf0dc,#2d2410);color:var(--warn)}
+.bigtotal .amt.sv{font-size:clamp(28px,8vw,38px)}
+.statrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center}
+.statrow b{display:block;font-size:22px}
+.statrow span{font-size:12.5px;color:var(--mute)}
+/* modal + toast */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(10,10,12,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.modal .sheet{background:var(--card);border-radius:22px;padding:20px;width:100%;max-width:520px;display:grid;gap:14px;margin-bottom:env(safe-area-inset-bottom);max-height:88vh;overflow:auto}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#16171a;color:#fff;padding:12px 18px;border-radius:14px;font-weight:600;font-size:15px;z-index:70;opacity:0;pointer-events:none;transition:.25s;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.car-on{fill:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (min-width:600px){main.page{padding-top:24px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script id="core">
+/* ===== CORE: data & perhitungan (tanpa DOM) ===== */
+var SIZES=[{k:'S',n:'Small'},{k:'M',n:'Medium'},{k:'L',n:'Large'},{k:'XL',n:'Extra Large'},{k:'SP',n:'Special'}];
+var PRICED=['S','M','L','XL'];
+var STATUSES=['Estimasi Baru','Menunggu Survei','Menunggu Konfirmasi','Harga Disetujui','Penawaran Dikirim','Customer Setuju','Dalam Pengerjaan','Selesai','Batal'];
+var FINAL_OK=['Harga Disetujui','Penawaran Dikirim','Customer Setuju','Dalam Pengerjaan','Selesai'];
+var MASTER_VERSION='27 Nov 2026';
+var MASTER=[["BYD","Atto 1","S",0,"","E"],["Chevrolet","Spark","S",0,"","E"],["DFSK","Seres E1","S",0,"","E"],["Daihatsu","Ayla","S",0,"","E"],["Daihatsu","Charade","S",0,"","E"],["Daihatsu","Sirion","S",0,"","E"],["Ford","Fiesta","S",0,"","E"],["Honda","Brio","S",0,"","E"],["Honda","Fit","S",0,"","E"],["Honda","Jazz","S",0,"","E"],["Hyundai","Grand i10","S",0,"","E"],["Hyundai","i10","S",0,"","E"],["Hyundai","i20","S",0,"","E"],["Kia","Morning","S",0,"","E"],["Kia","Picanto","S",0,"","E"],["Kia","Rio Hatchback","S",0,"","E"],["MG","MG 3","S",0,"","E"],["Mazda","Mazda2 Hatchback","S",0,"","E"],["Mini","Cooper 3 Door","S",1,"","K"],["Mini","Cooper 5 Door","S",1,"","K"],["Mitsubishi","Mirage","S",0,"","E"],["Nissan","Latio Hatchback","S",0,"","E"],["Nissan","March","S",0,"","E"],["Nissan","Micra","S",0,"","E"],["Renault","Kwid","S",0,"","E"],["Suzuki","Celerio","S",0,"","E"],["Suzuki","Ignis","S",0,"","E"],["Suzuki","Jimny 3 Door","S",1,"S secara dimensi; pintu panjang dua-pintu perlu cek foto","K"],["Suzuki","Karimun Estilo","S",0,"","E"],["Suzuki","Karimun Kotak","S",0,"","E"],["Suzuki","Karimun Wagon R","S",0,"","E"],["Suzuki","S-Presso","S",0,"","E"],["Suzuki","Splash","S",0,"","E"],["Suzuki","Swift","S",0,"","E"],["Toyota","Agya","S",0,"","E"],["Toyota","Agya GR Sport","S",0,"","E"],["Toyota","Etios Valco","S",0,"","E"],["Toyota","Starlet","S",0,"","E"],["Toyota","iQ","S",0,"","E"],["VinFast","VF 3","S",0,"","E"],["Volkswagen","Polo","S",0,"","E"],["Wuling","Air ev","S",0,"","E"],["Wuling","BinguoEV","S",0,"","E"],["Wuling","E100","S",0,"","E"],["Wuling","E200","S",0,"","E"],["Audi","A3","M",1,"","K"],["Audi","Q2","M",1,"","K"],["Audi","Q3","M",1,"","K"],["BMW","1 Series","M",1,"","K"],["BMW","2 Series","M",1,"","K"],["BMW","X1","M",1,"","K"],["BMW","X2","M",1,"","K"],["BMW","iX1","M",1,"","K"],["BYD","Atto 3","M",0,"","E"],["BYD","Dolphin","M",0,"","E"],["Chery","C5","M",0,"","E"],["Chery","Chery Q","M",0,"M: panjang sekitar 4,2 m; sebelumnya rawan dianggap S","E"],["Chery","E5","M",0,"","E"],["Chery","Omoda 5","M",0,"","E"],["Chery","Omoda E5","M",0,"","E"],["Chery","Tiggo 5X","M",0,"","E"],["Chery","Tiggo Cross","M",0,"","E"],["Chery","Tiggo Cross CSH","M",0,"","E"],["Chevrolet","Aveo","M",0,"","E"],["Chevrolet","Optra","M",0,"","E"],["Chevrolet","Spin","M",0,"","E"],["Chevrolet","Trax","M",0,"","E"],["DFSK","Glory 560","M",0,"","E"],["DFSK","Glory 580","M",0,"","E"],["Daihatsu","Feroza","M",0,"","E"],["Daihatsu","Rocky","M",0,"M, Compact SUV","E"],["Daihatsu","Sigra","M",0,"MPV ekonomis; M sebagai kategori operasional, cek luas panel","E"],["Daihatsu","Taruna","M",0,"","E"],["Daihatsu","Terios","M",0,"","E"],["Daihatsu","Xenia","M",0,"","E"],["Ford","EcoSport","M",0,"","E"],["Ford","Focus","M",0,"","E"],["Ford","Territory","M",0,"","E"],["GWM","Haval Jolion","M",0,"","E"],["GWM","ORA 03","M",0,"","E"],["Honda","BR-V","M",0,"","E"],["Honda","City Hatchback","M",0,"M; dimensi pintu lebih besar dari Brio","E"],["Honda","City Sedan","M",0,"","E"],["Honda","Civic Estilo","M",0,"","E"],["Honda","Civic Genio","M",0,"","E"],["Honda","HR-V","M",0,"M; pembaruan dari klasifikasi awal L","E"],["Honda","Mobilio","M",0,"","E"],["Honda","WR-V","M",0,"","E"],["Hyundai","Accent","M",0,"","E"],["Hyundai","Creta","M",0,"","E"],["Hyundai","Kona","M",0,"","E"],["Hyundai","Kona Electric","M",0,"","E"],["Hyundai","Stargazer","M",0,"","E"],["Hyundai","Stargazer Cartenz","M",0,"","E"],["Hyundai","Stargazer Cartenz X","M",0,"","E"],["Hyundai","Stargazer X","M",0,"","E"],["Hyundai","Venue","M",0,"","E"],["Isuzu","Panther kapsul","M",0,"","E"],["Jaecoo","J5 EV","M",0,"","E"],["Jeep","Compass","M",0,"","E"],["Jeep","Renegade","M",0,"","E"],["Kia","Carens","M",0,"","E"],["Kia","Rio Sedan","M",0,"","E"],["Kia","Seltos","M",0,"","E"],["Kia","Sonet","M",0,"","E"],["Lexus","LBX","M",1,"","K"],["Lexus","UX","M",1,"","K"],["MG","MG 4 EV","M",0,"","E"],["MG","MG S5 EV","M",0,"SUV listrik kompak, M; verifikasi generasi/panel","E"],["MG","ZS","M",0,"","E"],["MG","ZS EV","M",0,"","E"],["MG","ZS Hybrid+","M",0,"","E"],["Mazda","CX-3","M",0,"","E"],["Mazda","CX-30","M",0,"","E"],["Mazda","Mazda2 Sedan","M",0,"","E"],["Mazda","Mazda3 Hatchback","M",0,"","E"],["Mercedes-Benz","A-Class","M",1,"","K"],["Mercedes-Benz","CLA","M",1,"","K"],["Mercedes-Benz","GLA","M",1,"","K"],["Mini","Clubman","M",1,"","K"],["Mini","Countryman","M",1,"","K"],["Mitsubishi","Lancer","M",0,"","E"],["Mitsubishi","Outlander Sport","M",0,"","E"],["Mitsubishi","Xforce","M",0,"","E"],["Mitsubishi","Xpander","M",0,"","E"],["Mitsubishi","Xpander Cross","M",0,"","E"],["Nissan","Almera","M",0,"","E"],["Nissan","Grand Livina","M",0,"","E"],["Nissan","Juke","M",0,"","E"],["Nissan","Kicks e-POWER","M",0,"","E"],["Nissan","Livina","M",0,"","E"],["Nissan","Magnite","M",0,"","E"],["Nissan","Sunny","M",0,"","E"],["Peugeot","2008","M",0,"","E"],["Peugeot","208","M",0,"","E"],["Peugeot","308","M",0,"","E"],["Renault","Duster","M",0,"","E"],["Renault","Kiger","M",0,"","E"],["Renault","Triber","M",0,"","E"],["Subaru","Crosstrek","M",0,"","E"],["Subaru","Impreza","M",0,"","E"],["Suzuki","Aerio","M",0,"","E"],["Suzuki","Baleno","M",0,"","E"],["Suzuki","Ciaz","M",0,"","E"],["Suzuki","Ertiga","M",0,"","E"],["Suzuki","Escudo","M",0,"","E"],["Suzuki","Fronx","M",0,"","E"],["Suzuki","Grand Vitara","M",0,"","E"],["Suzuki","Jimny 5 Door","M",0,"M menurut kebijakan internal; panel kotak sederhana","E"],["Suzuki","SX4 S-Cross","M",0,"","E"],["Suzuki","XL7","M",0,"","E"],["Suzuki","e Vitara","M",0,"","E"],["Toyota","Avanza","M",0,"","E"],["Toyota","Calya","M",0,"MPV ekonomis; M sebagai kategori operasional, cek luas panel","E"],["Toyota","Corolla Cross","M",0,"","E"],["Toyota","Raize","M",0,"M, Compact SUV","E"],["Toyota","Rush","M",0,"","E"],["Toyota","Sienta","M",0,"","E"],["Toyota","Veloz","M",0,"","E"],["Toyota","Vios","M",0,"","E"],["Toyota","Yaris Cross","M",0,"","E"],["Toyota","Yaris hatchback","M",0,"M; lebih besar dari Agya","E"],["VinFast","VF 5","M",0,"","E"],["VinFast","VF 6","M",0,"","E"],["VinFast","VF e34","M",0,"","E"],["Volkswagen","Beetle","M",0,"","E"],["Volkswagen","Golf","M",0,"","E"],["Volkswagen","T-Cross","M",0,"","E"],["Volkswagen","T-Roc","M",0,"","E"],["Wuling","Alvez","M",0,"","E"],["Wuling","Cloud EV","M",0,"","E"],["Wuling","Confero","M",0,"","E"],["Wuling","Confero S","M",0,"","E"],["Wuling","Formo Max Minibus","M",0,"","E"],["Audi","A4","L",1,"","K"],["Audi","A5","L",1,"","K"],["Audi","A6","L",1,"","K"],["Audi","Q5","L",1,"","K"],["BAIC","X55 II","L",0,"","E"],["BMW","3 Series","L",1,"","K"],["BMW","4 Series","L",1,"","K"],["BMW","5 Series","L",1,"","K"],["BMW","X3","L",1,"","K"],["BMW","X4","L",1,"","K"],["BMW","i4","L",1,"","K"],["BMW","i5","L",1,"","K"],["BYD","M6","L",0,"","E"],["BYD","M6 DM-i","L",0,"","E"],["BYD","Seal","L",0,"","E"],["BYD","Sealion 6","L",0,"","E"],["BYD","Sealion 7","L",0,"","E"],["Chery","J6","L",0,"","E"],["Chery","J6T CSH","L",0,"","E"],["Chery","J6T EV","L",0,"","E"],["Chery","Tiggo 7","L",0,"","E"],["Chery","Tiggo 7 Pro","L",0,"","E"],["Chery","Tiggo 8","L",0,"","E"],["Chery","Tiggo 8 CSH","L",0,"","E"],["Chery","Tiggo 8 Pro","L",0,"","E"],["Chery","Tiggo 8 Pro Max","L",0,"","E"],["Chevrolet","Captiva","L",0,"","E"],["Chevrolet","Orlando","L",0,"","E"],["Daihatsu","Gran Max Minibus","L",0,"","E"],["Daihatsu","Luxio","L",0,"","E"],["Ford","Escape","L",0,"","E"],["GWM","Haval H6","L",0,"","E"],["GWM","Tank 300","L",0,"","E"],["Honda","Accord","L",0,"","E"],["Honda","CR-V","L",0,"","E"],["Honda","Civic Hatchback","L",0,"","E"],["Honda","Civic Sedan","L",0,"","E"],["Honda","e:N1","L",0,"","E"],["Hyundai","Elantra","L",0,"","E"],["Hyundai","Ioniq 5","L",0,"","E"],["Hyundai","Ioniq 6","L",0,"","E"],["Hyundai","Santa Fe","L",0,"","E"],["Hyundai","Sonata","L",0,"","E"],["Hyundai","Tucson","L",0,"","E"],["Jaecoo","J7","L",0,"","E"],["Jaecoo","J7 SHS","L",0,"","E"],["Jaecoo","J8","L",0,"","E"],["Jaecoo","J8 SHS","L",0,"","E"],["Kia","EV6","L",0,"","E"],["Kia","K3 Sedan","L",0,"","E"],["Kia","K5","L",0,"","E"],["Kia","Sorento","L",0,"","E"],["Kia","Sportage","L",0,"","E"],["Lexus","ES","L",1,"","K"],["Lexus","IS","L",1,"","K"],["Lexus","NX","L",1,"","K"],["Lexus","RZ","L",1,"","K"],["MG","HS","L",0,"","E"],["MG","MG 5 GT","L",0,"L untuk bodi sedan sekitar 4,675 m","E"],["MG","MG 7","L",0,"","E"],["MG","MGS6 EV","L",0,"","E"],["Mazda","CX-5","L",0,"","E"],["Mazda","CX-50","L",0,"","E"],["Mazda","CX-60","L",0,"","E"],["Mazda","CX-8","L",0,"","E"],["Mazda","Mazda3 Sedan","L",0,"","E"],["Mazda","Mazda6","L",0,"","E"],["Mercedes-Benz","C-Class","L",1,"","K"],["Mercedes-Benz","E-Class","L",1,"","K"],["Mercedes-Benz","EQB","L",1,"","K"],["Mercedes-Benz","EQE","L",1,"","K"],["Mercedes-Benz","GLB","L",1,"","K"],["Mercedes-Benz","GLC","L",1,"","K"],["Mitsubishi","Delica","L",0,"","E"],["Mitsubishi","Destinator","L",0,"L: panjang resmi 4,680 mm","E"],["Mitsubishi","Grandis","L",0,"","E"],["Mitsubishi","Outlander PHEV","L",0,"","E"],["Nissan","Serena","L",0,"","E"],["Nissan","Teana","L",0,"","E"],["Nissan","X-Trail","L",0,"","E"],["Peugeot","3008","L",0,"","E"],["Peugeot","5008","L",0,"","E"],["Peugeot","508","L",0,"","E"],["Porsche","Cayenne","L",1,"","K"],["Porsche","Macan","L",1,"","K"],["Porsche","Panamera","L",1,"","K"],["Porsche","Taycan","L",1,"","K"],["Subaru","Forester","L",0,"","E"],["Subaru","Outback","L",0,"","E"],["Subaru","WRX","L",0,"","E"],["Suzuki","APV","L",0,"L meski panjang tidak besar, panel bodi tinggi","E"],["Tesla","Model 3","L",1,"","K"],["Tesla","Model Y","L",1,"","K"],["Toyota","Camry","L",0,"","E"],["Toyota","Corolla Altis","L",0,"Sedan panjang; L sebagai dasar luas panel","E"],["Toyota","Innova Zenix","L",0,"","E"],["Toyota","Kijang Innova Reborn","L",0,"","E"],["Toyota","Kijang generasi lama","L",1,"","K"],["Toyota","Prius","L",0,"","E"],["Toyota","RAV4","L",0,"","E"],["Toyota","Voxy","L",0,"","E"],["Toyota","bZ4X","L",0,"","E"],["VinFast","VF 7","L",0,"","E"],["VinFast","VF MPV 7","L",0,"","E"],["Volkswagen","Jetta","L",0,"","E"],["Volkswagen","Passat","L",0,"","E"],["Volkswagen","Tiguan","L",0,"","E"],["Wuling","Almaz","L",0,"","E"],["Wuling","Almaz RS","L",0,"","E"],["Wuling","Cortez","L",0,"","E"],["Wuling","Darion EV","L",0,"","E"],["Wuling","Darion PHEV","L",0,"","E"],["Audi","A8","XL",1,"","K"],["Audi","Q7","XL",1,"","K"],["Audi","Q8","XL",1,"","K"],["BAIC","BJ30","XL",0,"","E"],["BAIC","BJ40 Plus","XL",0,"","E"],["BMW","7 Series","XL",1,"","K"],["BMW","X5","XL",1,"","K"],["BMW","X6","XL",1,"","K"],["BMW","X7","XL",1,"","K"],["BMW","i7","XL",1,"","K"],["BMW","iX","XL",1,"","K"],["BYD","Denza B5","XL",1,"","K"],["BYD","Denza D9","XL",1,"XL ukuran, wajib penawaran khusus: pintu geser/mewah","K"],["BYD","Denza Z9 GT","XL",1,"","K"],["Chery","Tiggo 9 CSH","XL",0,"","E"],["Chevrolet","Colorado Double Cabin","XL",0,"","E"],["Chevrolet","Trailblazer","XL",0,"","E"],["Ford","Everest","XL",0,"","E"],["Ford","Ranger Double Cabin","XL",0,"XL kabin; bak/tailgate dihitung khusus","E"],["Ford","Ranger Raptor","XL",1,"","K"],["GWM","Tank 500","XL",0,"","E"],["Honda","Step WGN","XL",1,"XL ukuran, wajib penawaran khusus: pintu geser","K"],["Hyundai","Ioniq 9","XL",1,"","K"],["Hyundai","Palisade","XL",1,"","K"],["Hyundai","Staria","XL",1,"XL ukuran, wajib penawaran khusus untuk pintu geser dan panel besar","K"],["Isuzu","D-Max Double Cabin","XL",0,"","E"],["Isuzu","MU-X","XL",0,"","E"],["Jeep","Gladiator","XL",1,"","K"],["Jeep","Grand Cherokee","XL",0,"","E"],["Jeep","Wrangler","XL",1,"","K"],["Kia","Carnival","XL",1,"XL ukuran, wajib penawaran khusus: pintu geser","K"],["Kia","EV9","XL",1,"","K"],["Lexus","GX","XL",1,"","K"],["Lexus","LM","XL",1,"","K"],["Lexus","LS","XL",1,"","K"],["Lexus","LX","XL",1,"","K"],["Lexus","RX","XL",1,"","K"],["Mazda","BT-50 Double Cabin","XL",0,"","E"],["Mazda","CX-80","XL",0,"","E"],["Mazda","CX-9","XL",0,"","E"],["Mazda","CX-90","XL",0,"","E"],["Mercedes-Benz","EQE SUV","XL",1,"","K"],["Mercedes-Benz","EQS SUV","XL",1,"","K"],["Mercedes-Benz","G-Class","XL",1,"","K"],["Mercedes-Benz","GLE","XL",1,"","K"],["Mercedes-Benz","GLS","XL",1,"","K"],["Mercedes-Benz","S-Class","XL",1,"","K"],["Mitsubishi","Pajero","XL",0,"","E"],["Mitsubishi","Pajero Sport","XL",0,"","E"],["Mitsubishi","Strada Triton","XL",0,"","E"],["Mitsubishi","Triton Double Cabin","XL",0,"XL kabin; bak/tailgate dihitung khusus","E"],["Nissan","Navara Double Cabin","XL",0,"","E"],["Nissan","Patrol","XL",1,"","K"],["Nissan","Terra","XL",0,"","E"],["Subaru","Ascent","XL",0,"","E"],["Tesla","Model S","XL",1,"","K"],["Tesla","Model X","XL",1,"","K"],["Toyota","Alphard","XL",1,"XL secara ukuran, wajib penawaran khusus: panel sliding door/premium","K"],["Toyota","Fortuner","XL",0,"","E"],["Toyota","Hilux Double Cabin","XL",0,"XL kabin; bak/tailgate dihitung khusus","E"],["Toyota","Land Cruiser 300","XL",1,"","K"],["Toyota","Land Cruiser Prado","XL",1,"","K"],["Toyota","Vellfire","XL",1,"XL secara ukuran, wajib penawaran khusus: panel sliding door/premium","K"],["Volkswagen","Tiguan Allspace","XL",0,"","E"],["BMW","M2 Coupe","SP",1,"","K"],["BMW","Z4","SP",1,"","K"],["DFSK","Gelora","SP",1,"","K"],["DFSK","Super Cab","SP",1,"","K"],["Daihatsu","Gran Max Blind Van","SP",1,"","K"],["Daihatsu","Gran Max Pick Up","SP",1,"","K"],["Daihatsu","Taft Hiline","SP",1,"","K"],["Ford","Ranger Single Cabin","SP",1,"","K"],["Honda","Civic Type R","SP",1,"","K"],["Honda","Prelude","SP",1,"","K"],["Isuzu","Elf","SP",1,"","K"],["Isuzu","Giga","SP",1,"","K"],["Isuzu","Traga Pick Up","SP",1,"","K"],["Mazda","Biante","SP",1,"","K"],["Mazda","MX-5","SP",1,"","K"],["Mercedes-Benz","AMG GT","SP",1,"","K"],["Mercedes-Benz","V-Class","SP",1,"","K"],["Mitsubishi","L100 EV","SP",1,"","K"],["Mitsubishi","L300","SP",1,"","K"],["Mitsubishi","Triton Single Cabin","SP",1,"","K"],["Porsche","718 Boxster","SP",1,"","K"],["Porsche","718 Cayman","SP",1,"","K"],["Porsche","911","SP",1,"","K"],["Subaru","BRZ","SP",1,"Coupe dua pintu: wajib survei area pintu/panel","K"],["Suzuki","Carry Futura Pick Up","SP",1,"","K"],["Suzuki","Carry Pick Up","SP",1,"","K"],["Suzuki","Katana Modifikasi","SP",1,"","K"],["Toyota","Dyna","SP",1,"","K"],["Toyota","GR Supra","SP",1,"","K"],["Toyota","GR86","SP",1,"Dua pintu, panel dan material beragam: survei","K"],["Toyota","Hiace","SP",1,"","K"],["Toyota","Hilux Rangga","SP",1,"","K"],["Toyota","Hilux Single Cabin","SP",1,"","K"],["Volkswagen","Caravelle","SP",1,"","K"],["Volkswagen","Transporter","SP",1,"","K"],["Wuling","Formo Blind Van","SP",1,"","K"],["Wuling","Formo Max Pick Up","SP",1,"","K"]];
+var DEFAULT_TPL={
+est:'*R&D PAINT HOUSE – KUPANG*\n_Estimasi Pengecatan Mobil_\nNo. {no} · {tanggal}\n\nYth. Bapak/Ibu *{nama}*,\n\nBerikut estimasi pengecatan kendaraan Anda:\n\nMobil: *{mobil}*\nKategori: {kategori}\nWarna: {warna}\n{nopol}\n\n{rincian}\n\n_Harga dapat menyesuaikan hasil pemeriksaan kondisi kendaraan._\n\nTerima kasih telah mempercayakan perawatan kendaraan Anda kepada R&D Paint House.\n\n{sales}\nR&D Paint House · WA {wa_toko}',
+fin:'*R&D PAINT HOUSE – KUPANG*\n*KONFIRMASI HARGA FINAL*\nNo. {no} · {tanggal}\n\nYth. Bapak/Ibu *{nama}*,\n\nBerikut harga final pengecatan kendaraan Anda yang telah dikonfirmasi:\n\nMobil: *{mobil}*\nKategori: {kategori}\nWarna: {warna}\n{nopol}\n\n{rincian}\n\nSilakan balas pesan ini untuk menjadwalkan pengerjaan.\n\nTerima kasih telah mempercayakan perawatan kendaraan Anda kepada R&D Paint House.\n\n{sales}\nR&D Paint House · WA {wa_toko}'
+};
+function P(id,name,unit,icon,a,pos,max){return{id:id,name:name,unit:unit,icon:icon,prices:{S:a[0],M:a[1],L:a[2],XL:a[3]},pos:pos||[],max:max||1}}
+function masterModels(){return MASTER.map(function(r){return{b:r[0],m:r[1],s:r[2],sv:!!r[3],n:r[4],st:r[5]}})}
+function defaultSettings(){return{
+  v:2,pin:'1234',priceOfficial:false,shopWa:'0811 3810 8055',
+  panels:[
+    P('pintu','Pintu','panel pintu','door',[650000,750000,900000,1100000],['Depan kiri','Depan kanan','Belakang kiri','Belakang kanan']),
+    P('fender','Fender depan','fender depan','fender',[550000,650000,800000,1000000],['Kiri','Kanan']),
+    P('bumperD','Bumper depan','bumper depan','bumperF',[650000,800000,1000000,1150000]),
+    P('bumperB','Bumper belakang','bumper belakang','bumperR',[650000,800000,1000000,1150000]),
+    P('kap','Kap mesin','kap mesin','hood',[800000,1000000,1150000,1400000]),
+    P('bagasi','Pintu bagasi belakang','pintu bagasi','tail',[750000,1000000,1150000,1400000]),
+    P('atap','Atap / roof','atap','roof',[1050000,1250000,1500000,1800000]),
+    P('quarter','Quarter panel belakang','quarter panel','quarter',[700000,850000,1050000,1250000],['Kiri','Kanan'])
+  ],
+  models:masterModels(),masterVersion:MASTER_VERSION,
+  dentOptions:[150000,200000,250000,300000,350000],
+  specialOptions:[15,20,25,30],specialDefault:20,
+  discountMax:10,discountOptions:[5,10],
+  coating:[],priceLog:[],
+  templates:{est:DEFAULT_TPL.est,fin:DEFAULT_TPL.fin}
+}}
+function newDraft(){return{id:null,customer:'',wa:'',plate:'',brand:'',model:'',size:'',survey:false,unreg:false,carNote:'',estSize:'',year:'',color:'',colorOther:'',
+  lines:{},others:[],std:true,dent:{on:false,nominal:250000,qty:1},special:{on:false,pct:20},blend:{on:false,amount:''},heavy:{on:false,note:'',amount:''},
+  coating:{want:null,pkg:null},disc:{type:'none',pct:0,nom:''}}}
+function sizeName(k){for(var i=0;i<SIZES.length;i++)if(SIZES[i].k===k)return SIZES[i].n;return '-'}
+function roundK(x){return Math.round(x/1000)*1000}
+function rp(n){n=Math.round(+n||0);var neg=n<0;var s=String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');return (neg?'-':'')+'Rp'+s}
+function toNum(v){var n=parseInt(String(v==null?'':v).replace(/[^\d]/g,''),10);return isNaN(n)?0:n}
+function normWa(s){var d=String(s||'').replace(/\D/g,'');if(d.indexOf('00')===0)d=d.slice(2);if(d.charAt(0)==='0')d='62'+d.slice(1);else if(d.charAt(0)==='8')d='62'+d;return /^628\d{7,11}$/.test(d)?d:null}
+function carName(d){return ((d.brand||'')+' '+(d.model||'')).trim()+(d.year?' ('+d.year+')':'')}
+function colorName(d){return d.color==='Lainnya'?(d.colorOther||'').trim():d.color}
+function hasCar(d){return !!(d.model&&d.brand&&(d.unreg||d.size))}
+function unitCount(d){var n=0;for(var k in d.lines)n+=d.lines[k].qty||0;(d.others||[]).forEach(function(o){if(o.name&&toNum(o.price))n+=Math.max(1,toNum(o.qty)||1)});return n}
+/* pencarian model: toleran spasi, tanda hubung, salah ketik ringan */
+function nk(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function lev(a,b){if(a===b)return 0;var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];for(j=0;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function searchModels(models,q){
+  var nq=nk(q);if(!nq)return[];
+  var toks=String(q).toLowerCase().split(/\s+/).map(nk).filter(Boolean);
+  var res=[];
+  models.forEach(function(m,i){
+    var mk=nk(m.m),bk=nk(m.b),full=bk+mk,sc=0;
+    if(mk===nq||full===nq)sc=100;
+    else if(mk.indexOf(nq)===0||full.indexOf(nq)===0)sc=80;
+    else if(toks.length>1&&toks.every(function(t){return full.indexOf(t)>=0}))sc=70;
+    else if(nq.length>=3&&mk.indexOf(nq)>0)sc=50;
+    if(sc)res.push({i:i,sc:sc,len:mk.length});
+  });
+  if(!res.length&&nq.length>=4){
+    models.forEach(function(m,i){var mk=nk(m.m);var words=String(m.m).toLowerCase().split(/[\s-]+/).map(nk);
+      var best=Math.min(lev(nq,mk.slice(0,nq.length)),Math.min.apply(null,words.map(function(w){return lev(nq,w)})));
+      if(best<=(nq.length>=7?2:1))res.push({i:i,sc:20-best,len:mk.length})});
+  }
+  res.sort(function(a,b){return b.sc-a.sc||a.len-b.len||(models[a.i].b+models[a.i].m).localeCompare(models[b.i].b+models[b.i].m)});
+  return res.map(function(r){return r.i});
+}
+function compute(d,s){
+  var survey=!!(d.survey||d.unreg||d.size==='SP');
+  var r={size:d.size,sizeName:d.unreg?'Belum terdaftar':sizeName(d.size),survey:survey,lines:[],paintSub:0,unpriced:0,extras:[],extrasSum:0,pending:[],repaintTotal:0,disc:0,discLabel:'',discCapped:false,repaintNet:0,coating:null,grand:0};
+  if(!d.size&&!d.unreg)return r;
+  s.panels.forEach(function(p){var l=d.lines[p.id];if(!l||!l.qty)return;
+    var ov=toNum(l.ov);var base=PRICED.indexOf(d.size)>=0?toNum(p.prices[d.size]):0;var u=ov||base||null;
+    var sub=u==null?null:u*l.qty;
+    r.lines.push({id:p.id,name:p.name,unitLabel:p.unit,qty:l.qty,unit:u,sub:sub,pos:(l.pos||[]).slice(),ov:!!ov});
+    if(sub==null)r.unpriced++;else r.paintSub+=sub});
+  (d.others||[]).forEach(function(o){var pr=toNum(o.price);var q=Math.max(1,toNum(o.qty)||1);var nm=(o.name||'').trim();if(!nm||!pr)return;
+    r.lines.push({id:'other',name:nm,unitLabel:nm.toLowerCase(),qty:q,unit:pr,sub:pr*q,pos:[],manual:true});r.paintSub+=pr*q});
+  if(r.unpriced)r.pending.push('harga panel (menunggu survei)');
+  if(d.special.on){var pc=+d.special.pct||0;r.extras.push({key:'special',label:'Warna khusus '+pc+'%',amount:roundK(r.paintSub*pc/100),detail:pc+'% × '+rp(r.paintSub)})}
+  if(d.dent.on){var q=Math.max(1,+d.dent.qty||1),nom=toNum(d.dent.nominal);r.extras.push({key:'dent',label:'Penyok/dempul '+q+' panel',amount:nom*q,detail:q+' × '+rp(nom)})}
+  if(d.blend.on){var b=toNum(d.blend.amount);r.extras.push(b?{key:'blend',label:'Blending warna',amount:b,detail:'Nominal dari teknisi'}:{key:'blend',label:'Blending warna',amount:null,detail:'Menunggu konfirmasi teknisi'});if(!b)r.pending.push('blending warna')}
+  if(d.heavy.on){var h=toNum(d.heavy.amount),nt=(d.heavy.note||'').trim();r.extras.push({key:'heavy',label:'Kerusakan berat'+(nt?' ('+nt+')':''),amount:h||null,detail:h?'Harga setelah survei':'Wajib survei – harga menyusul'});if(!h)r.pending.push('perbaikan kerusakan berat (wajib survei)')}
+  r.extras.forEach(function(e){if(e.amount)r.extrasSum+=e.amount});
+  r.repaintTotal=r.paintSub+r.extrasSum;
+  var max=Math.floor(r.repaintTotal*(+s.discountMax||0)/100);
+  if(d.disc.type==='pct'&&+d.disc.pct>0){var p=Math.min(+d.disc.pct,+s.discountMax||0);r.disc=roundK(r.repaintTotal*p/100);r.discLabel='Diskon '+p+'%'}
+  else if(d.disc.type==='nom'&&toNum(d.disc.nom)>0){var n=toNum(d.disc.nom);r.disc=Math.min(n,max);r.discCapped=n>max;r.discLabel='Diskon'}
+  r.disc=Math.min(r.disc,r.repaintTotal);
+  r.repaintNet=r.repaintTotal-r.disc;
+  if(d.coating.want===true){var pk=null;(s.coating||[]).forEach(function(c){if(c.id===d.coating.pkg)pk=c});
+    var price=pk&&toNum(pk.price)?toNum(pk.price):null;r.coating={name:pk?pk.name:'Ceramic coating',price:price};if(price==null)r.pending.push('ceramic coating')}
+  r.grand=r.repaintNet+(r.coating&&r.coating.price?r.coating.price:0);
+  return r;
+}
+function rincianText(c,kind,hide){
+  var L=['*Rincian Pekerjaan:*'];
+  c.lines.forEach(function(l){
+    var amt=hide?'':(l.sub==null?': _harga setelah survei_':': '+rp(l.sub));
+    if(l.manual)L.push('• Cat '+l.unitLabel+(l.qty>1?' ('+l.qty+' bh'+(hide?'':' × '+rp(l.unit))+')':'')+amt);
+    else{L.push('• Cat '+l.qty+' '+l.unitLabel+amt);if(l.pos.length)L.push('   _'+l.pos.join(', ').toLowerCase()+'_')}
+  });
+  if(hide){
+    if(c.extras.length){L.push('');L.push('*Pekerjaan tambahan:*');c.extras.forEach(function(e){L.push('• '+e.label.replace(/ \d+%$/,''))})}
+    if(c.coating){L.push('');L.push('*Ceramic Coating:* '+c.coating.name)}
+    L.push('');L.push('*TOTAL: menunggu hasil survei*');
+    L.push('_Kendaraan ini memerlukan survei/pemeriksaan langsung oleh teknisi kami. Harga akan kami informasikan setelah pemeriksaan._');
+    return L.join('\n');
+  }
+  var hasMore=c.extras.length||c.disc;
+  if(hasMore){L.push('');L.push('Subtotal pengecatan: '+rp(c.paintSub))}
+  if(c.extras.length){L.push('');L.push('*Biaya Tambahan:*');c.extras.forEach(function(e){L.push('• '+e.label+': '+(e.amount?rp(e.amount):'_'+e.detail.toLowerCase()+'_'))})}
+  if(c.disc){L.push('');L.push(c.discLabel+': -'+rp(c.disc))}
+  L.push('');L.push('*'+(kind==='fin'?'TOTAL HARGA':'TOTAL ESTIMASI')+': '+rp(c.repaintNet)+'*');
+  if(c.coating){L.push('');L.push('*Ceramic Coating:*');L.push('• '+c.coating.name+': '+(c.coating.price?rp(c.coating.price):'_harga menyusul_'));
+    if(c.coating.price){L.push('');L.push('*TOTAL REPAINT + COATING: '+rp(c.grand)+'*')}
+    L.push('_Jadwal ceramic coating setelah repaint menunggu konfirmasi teknisi (curing cat dan clear coat)._')}
+  if(c.pending.length){L.push('');L.push('_Belum termasuk: '+c.pending.join(', ')+'. Harga menyusul setelah dicek teknisi._')}
+  return L.join('\n');
+}
+function hidePrice(rec){return !!(rec.calc.survey&&!rec.approved)}
+function catLabel(c){return c.size==='SP'?'Special (harga lewat survei)':(c.survey&&c.size!=='SP'&&c.sizeName!=='Belum terdaftar'?c.sizeName+' · wajib survei':(c.sizeName==='Belum terdaftar'?'Menunggu survei':c.sizeName))}
+function fmtDate(t){var d=new Date(t);var m=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear()}
+function buildMsg(rec,kind,s){
+  var d=rec.draft,c=rec.calc;var tpl=(s.templates&&s.templates[kind])||DEFAULT_TPL[kind];
+  var map={no:rec.no||'-',tanggal:fmtDate(rec.updatedAt||Date.now()),nama:(d.customer||'').trim(),mobil:carName(d),kategori:catLabel(c),warna:colorName(d)||'-',
+    nopol:d.plate?'No. Polisi: '+d.plate.toUpperCase():'',rincian:rincianText(c,kind,kind!=='fin'&&hidePrice(rec)),sales:rec.sales?'Salam, '+rec.sales:'',wa_toko:s.shopWa||''};
+  var out=tpl.replace(/\{(\w+)\}/g,function(m,k){return Object.prototype.hasOwnProperty.call(map,k)?map[k]:m});
+  return out.replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function waLink(num,text){return 'https://wa.me/'+num+'?text='+encodeURIComponent(text)}
+</script>
+<script>
+{
+/* ===== storage ===== */
+const mem={};let storeOK=true;
+const K={set:'rdph.mobil.settings',q:'rdph.mobil.quotes',sales:'rdph.mobil.sales',draft:'rdph.mobil.draft',recent:'rdph.mobil.recent'};
+function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):(k in mem?mem[k]:null)}catch(e){storeOK=false;return k in mem?mem[k]:null}}
+function store(k,v){mem[k]=v;try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){storeOK=false}}
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+let S=load(K.set);
+if(!S||!S.panels){S=defaultSettings()}else{if(!(S.v>=2)){S.models=masterModels();S.masterVersion=MASTER_VERSION;S.v=2;S.priceLog=S.priceLog||[];store(K.draft,null);store(K.set,S)}const d=defaultSettings();for(const k in d)if(!(k in S))S[k]=d[k];if(!S.templates.est)S.templates.est=DEFAULT_TPL.est;if(!S.templates.fin)S.templates.fin=DEFAULT_TPL.fin}
+let Q=load(K.q);
+let salesName=load(K.sales)||'';
+let D=load(K.draft);if(D&&!('unreg' in D))D=null;
+const ui={view:'home',step:1,detail:null,admin:false,tab:'penawaran',hq:'',hs:'Semua',carQ:'',showErr:false,custErr:false,dirty:false,pq:'',mq:'',mbrand:'Toyota',mflt:'all',brandPick:'',mfilter:'',allBrands:false};
+let dl=null;
+
+
+function saveS(){store(K.set,S)}
+function saveQ(){store(K.q,Q)}
+function saveD(){store(K.draft,D)}
+
+function makeNo(t){const d=new Date(t);const p=n=>String(n).padStart(2,'0');const base='RDP-'+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate());const n=Q.filter(q=>q.no.indexOf(base)===0).length+1;return base+'-'+p(n)}
+function createRec(draft,sales,status,sample,t){
+  t=t||Date.now();const id=uid();const dr=clone(draft);dr.id=id;
+  const rec={id,no:makeNo(t),createdAt:t,updatedAt:t,sales:sales||'',draft:dr,calc:compute(dr,S),status:status||'Estimasi Baru',approved:null,rev:1,revisions:[],log:[{at:t,s:status||'Estimasi Baru',by:sales||''}]};
+  if(sample)rec.sample=true;return rec;
+}
+if(!Q){Q=[];const day=86400000,now=Date.now();
+  const a=newDraft();Object.assign(a,{customer:'Budi',wa:'081234567890',brand:'Mitsubishi',model:'Xpander',size:'M',color:'Hitam',lines:{pintu:{qty:2,pos:['Depan kiri','Depan kanan']},fender:{qty:1,pos:['Kiri']}}});
+  const b=newDraft();Object.assign(b,{customer:'Maria',wa:'082145550123',plate:'DH 1478 KA',brand:'Toyota',model:'Avanza',size:'M',color:'Putih',std:false,lines:{bumperD:{qty:1,pos:[]},kap:{qty:1,pos:[]}},dent:{on:true,nominal:250000,qty:1}});
+  const c=newDraft();Object.assign(c,{customer:'Yohanes',wa:'081339001122',plate:'DH 1020 AF',brand:'Toyota',model:'Fortuner',size:'XL',color:'Silver',std:false,lines:{quarter:{qty:2,pos:['Kiri','Kanan']}},special:{on:true,pct:20},disc:{type:'pct',pct:5,nom:''}});
+  const r1=createRec(c,'Aisyah','Menunggu Konfirmasi',true,now-2*day);r1.approved={at:now-day};r1.status='Harga Disetujui';r1.log.push({at:now-day,s:'Harga Disetujui',by:'Owner'});Q.push(r1);
+  Q.push(createRec(b,'Rizka','Menunggu Konfirmasi',true,now-day));
+  Q.push(createRec(a,'Aisyah','Estimasi Baru',true,now-3600000));
+  saveQ();
+}
+
+/* ===== helpers UI ===== */
+const ICON={
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+ wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>',
+ copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+ save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v6h9M7 21v-7h10v7"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+ tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+ send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+ edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'
+};
+const PART={
+ hood:'M3 15.5 Q4 13 9 12.3 L19 12 V15.5 Z',
+ bumperF:'M1.5 18.5 H8 V24.5 H3 Q1.5 24.5 1.5 23 Z',
+ fender:'M3 15.5 H19 V18.5 H8 Z M8 18.5 H19 V24.5 H17.5 A5 5 0 0 0 8.5 21 Z',
+ door:'M19 12 H41.5 V25 H19 Z',
+ roof:'M21.5 3.5 H42 L43.5 6 H19.5 Z',
+ quarter:'M41.5 12 H54 V19 H41.5 Z M41.5 19 H54 V21 A5 5 0 0 0 44.6 25 H41.5 Z',
+ tail:'M54 7.5 L58.5 9 L61.5 13.5 V19 H54 Z',
+ bumperR:'M54 19 H62.5 V23.5 Q62.5 24.5 61.5 24.5 H55.5 A5 5 0 0 0 54 21.5 Z'
+};
+function carSvg(on){
+  if(on==='other')return '<svg viewBox="0 0 64 34" aria-hidden="true"><rect x="6" y="3" width="52" height="28" rx="10" fill="var(--carbase)" opacity=".35"/><path d="M32 10v14M25 17h14" stroke="var(--gtext)" stroke-width="3.2" stroke-linecap="round"/></svg>';
+  let h='<svg viewBox="0 0 64 34" aria-hidden="true"><path d="M19.5 6 H43.5 L48 12 H16 Z" fill="var(--glass)"/>';
+  for(const k in PART)h+='<path d="'+PART[k]+'" fill="'+(k===on?'var(--gold)':'var(--carbase)')+'" stroke="var(--card)" stroke-width=".7"/>';
+  h+='<line x1="30.2" y1="12.5" x2="30.2" y2="24.5" stroke="var(--card)" stroke-width=".9"/>';
+  h+='<circle cx="13" cy="26" r="5" fill="var(--wheel)"/><circle cx="13" cy="26" r="2" fill="var(--carbase)"/><circle cx="49.6" cy="26" r="5" fill="var(--wheel)"/><circle cx="49.6" cy="26" r="2" fill="var(--carbase)"/></svg>';
+  return h;
+}
+const COLORS=[['Hitam','#111'],['Putih','#fff'],['Silver','#c0c4c8'],['Abu-abu','#7b7f86'],['Merah','#c62828'],['Biru','#1e56b8'],['Coklat','#6d4c2f'],['Lainnya','conic-gradient(red,orange,yellow,green,blue,violet,red)']];
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2600)}
+function modal(o){
+  const m=document.createElement('div');m.className='modal';
+  m.innerHTML='<div class="sheet" role="dialog" aria-modal="true"><h2>'+esc(o.title)+'</h2>'+(o.html||'')+'<div class="actions">'+(o.ok?'<button class="btn '+(o.danger?'dark':'gold')+'" data-m="ok">'+esc(o.ok)+'</button>':'')+'<button class="btn ghost" data-m="x">'+esc(o.cancel||'Batal')+'</button></div></div>';
+  document.body.appendChild(m);
+  const close=()=>m.remove();
+  m.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(e.target===m){close();return}if(!b)return;if(b.dataset.m==='x'){close();o.onCancel&&o.onCancel()}if(b.dataset.m==='ok'){if(o.onOk&&o.onOk(m)===false)return;close()}});
+  const f=m.querySelector('input,textarea');setTimeout(()=>{(f||m.querySelector('[data-m]')).focus()},50);
+  return m;
+}
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);return true}catch(e){}
+  try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(ok)return true}catch(e){}
+  modal({title:'Salin manual',html:'<p class="mute small">Tekan lama pada teks di bawah, pilih semua, lalu salin.</p><textarea class="inp" style="min-height:220px" readonly>'+esc(text)+'</textarea>',cancel:'Tutup'});
+  return false;
+}
+function needSales(then){
+  if(salesName.trim())return then();
+  modal({title:'Isi nama Sales dulu',html:'<label class="field"><span>Nama Sales</span><input class="inp" id="m-sales" autocomplete="name" placeholder="contoh: Aisyah"></label>',ok:'Simpan nama',onOk:m=>{const v=m.querySelector('#m-sales').value.trim();if(!v){toast('Nama Sales wajib diisi');return false}salesName=v;store(K.sales,v);setTimeout(then,0)}});
+}
+const statusCls=s=>({'Estimasi Baru':'grey','Menunggu Survei':'warn','Menunggu Konfirmasi':'warn','Harga Disetujui':'ok','Penawaran Dikirim':'','Customer Setuju':'ok','Dalam Pengerjaan':'','Selesai':'ok','Batal':'bad'}[s]||'grey');
+const statusBadge=s=>'<span class="badge '+statusCls(s)+'">'+esc(s)+'</span>';
+const officialBadge=()=>S.priceOfficial?'<span class="badge ok">Harga resmi</span>':'<span class="badge warn">Harga usulan · belum final resmi</span>';
+
+/* ===== render ===== */
+function render(){
+  const app=document.getElementById('app');
+  const v=ui.view;let h='';
+  if(v==='home')h=vHome();else if(v==='baru')h=vWizard();else if(v==='riwayat')h=vHistory();else if(v==='detail')h=vDetail();else if(v==='harga')h=vPrices();else if(v==='admin')h=vAdmin();
+  app.innerHTML=h;
+}
+function topbar(title,sub,backTo,extra){
+  return '<header class="top"><div class="wrap"><button class="iconbtn" data-act="go" data-v="'+backTo+'" aria-label="Kembali">'+ICON.back+'</button><div style="flex:1"><b>'+esc(title)+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'+(extra||'')+'</div></header>';
+}
+function vHome(){
+  const pend=Q.filter(q=>q.status==='Menunggu Konfirmasi').length;
+  const resume=D&&(D.customer||hasCar(D))?'<button class="btn ghost" data-act="resume">Lanjutkan: '+esc(D.customer||'tanpa nama')+(carName(D)?' · '+esc(carName(D)):'')+'</button>':'';
+  return '<section class="hero"><div class="wrap"><div class="logo"><img src="data:image/webp;base64,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" alt="R&amp;D Paint House – Automotive Paint &amp; Repaint Specialist"></div><h1>Hitung Harga Cat Mobil</h1><p>Hitung harga, buat penawaran, kirim WhatsApp.</p></div></section>'+
+  '<main class="wrap home"><div class="salesbox"><label for="salesName">Nama Sales</label><input id="salesName" data-f="salesName" value="'+esc(salesName)+'" placeholder="Tulis nama Anda" autocomplete="name"></div>'+
+  '<button class="btn gold xl" data-act="new">'+ICON.plus+'Buat Penawaran Baru</button>'+resume+
+  '<button class="btn dark xl" data-act="go" data-v="riwayat">'+ICON.list+'Riwayat Penawaran <span class="cnt">'+Q.length+'</span></button>'+
+  '<button class="btn dark xl" data-act="go" data-v="harga">'+ICON.tag+'Daftar Harga</button>'+
+  '<div style="text-align:center;margin-top:6px"><button class="linkbtn" data-act="go" data-v="admin">Admin / Owner'+(pend?' · '+pend+' menunggu persetujuan':'')+'</button></div>'+
+  '<p class="tiny mute" style="text-align:center">'+(storeOK?'Versi demo: data tersimpan di HP/browser ini saja, belum tersinkron antar-HP.':'Penyimpanan browser tidak tersedia di sini — data hilang saat halaman ditutup.')+'</p></main>';
+}
+
+/* ---------- wizard ---------- */
+const STEPN=['Pilih mobil','Pilih panel','Kondisi & layanan tambahan','Customer & kirim WA'];
+const POP_BRANDS=['Toyota','Daihatsu','Honda','Mitsubishi','Suzuki','Hyundai','Wuling','Nissan','Kia','BYD','Chery','Mazda'];
+function brands(){const m={};S.models.forEach(x=>{m[x.b]=(m[x.b]||0)+1});return m}
+function mono(b){const w=String(b).split(/[\s-]+/).filter(Boolean);if(/^[A-Z0-9]{2,4}$/.test(b))return b;return (w.length>1?w[0][0]+w[1][0]:b.slice(0,2)).toUpperCase()}
+function vWizard(){
+  const st=ui.step;
+  let h=topbar(D.id?'Revisi penawaran':'Penawaran baru','Tahap '+st+' dari 4 · '+STEPN[st-1],st===1?'home':'prev');
+  h=h.replace('</div></header>','</div><div class="wrap"><div class="steps">'+[1,2,3,4].map(i=>'<i class="'+(i<=st?'on':'')+'"></i>').join('')+'</div></div></header>');
+  h=h.replace('data-act="go" data-v="prev"','data-act="prev"');
+  h+='<main class="wrap page">';
+  if(D.id){const r=Q.find(q=>q.id===D.id);if(r)h+='<div class="infobox">Merevisi <b>'+esc(r.no)+'</b> (rev. '+r.rev+'). Harga lama tetap tersimpan di histori. Perhitungan memakai daftar harga terbaru.</div>'}
+  if(st>1&&hasCar(D))h+=carStrip();
+  h+=[0,step1,step2,step3,step4][st]();
+  h+='</main>';
+  if(st<4)h+='<footer class="totalbar"><div class="wrap"><div class="t" id="tb">'+barHtml()+'</div><button class="btn gold" data-act="next">'+(st===3?'Lihat total':'Lanjut')+' ›</button></div></footer>';
+  return h;
+}
+function barHtml(){
+  const c=compute(D,S);const n=unitCount(D);
+  if(c.survey)return '<small>'+n+' panel · harga final setelah survei</small><b>Menunggu survei</b>';
+  return '<small>'+(n?n+' panel · ':'')+'total estimasi</small><b>'+rp(c.grand)+'</b>';
+}
+function carWarn(d){
+  const w=[];const n=(d.carNote||'');
+  if(d.unreg)w.push('Mobil belum ada di database. Tidak ada kategori dan harga otomatis; harga lewat survei dan persetujuan Owner.');
+  else if(d.size==='SP')w.push('Kategori Special: harga tidak dihitung otomatis. Pilih panel yang dikerjakan, harga diisi setelah survei.');
+  else if(d.survey)w.push('Wajib survei: harga di aplikasi hanya acuan internal. Pesan WA dikirim tanpa angka sampai Owner menyetujui harga.');
+  if(n)w.push(n);
+  const txt=(d.model+' '+n).toLowerCase();
+  if(/geser|sliding/.test(txt))w.push('Pintu geser: luas panel berbeda, harga perlu konfirmasi teknisi.');
+  if(/bak|tailgate|pick ?up|cabin/.test(txt))w.push('Bak/tailgate pickup dihitung terpisah lewat "Bagian lain" setelah dicek teknisi.');
+  if(/\bev\b|listrik|hybrid|hev|phev|e-power|ioniq|tesla/.test(txt+' '+d.brand.toLowerCase()))w.push('Jika mobil listrik/hybrid: cek keselamatan bila area kerja dekat komponen tegangan tinggi.');
+  return w;
+}
+function catPill(d){if(d.unreg)return '<span class="catpill sp">SURVEI</span>';return '<span class="catpill '+(d.size==='SP'?'sp':'')+'">'+esc(sizeName(d.size).toUpperCase())+'</span>'}
+function carStrip(){return '<div class="carstrip"><span class="mono">'+esc(mono(D.brand))+'</span><div><b>'+esc(carName(D))+'</b>'+(D.survey||D.unreg||D.size==='SP'?'<span class="badge warn">Wajib survei</span>':'<span class="badge">Estimasi</span>')+'</div>'+catPill(D)+'</div>'}
+function normQ(s){return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function errs1(){
+  const e={};
+  if(!hasCar(D))e.car=D.unreg?'Isi merek dan model mobil':'Pilih merek lalu model mobil';
+  if(!colorName(D))e.color='Pilih warna kendaraan';
+  return e;
+}
+function errsCust(){
+  const e={};if(!D.customer.trim())e.customer='Nama customer wajib diisi';
+  if(!normWa(D.wa))e.wa=D.wa.trim()?'Nomor WhatsApp tidak valid':'Nomor WhatsApp wajib diisi';
+  return e;
+}
+function waHint(){const n=normWa(D.wa);if(!D.wa.trim())return['','Contoh: 0812 3456 7890'];return n?['ok','✓ Akan dikirim ke '+n]:['bad','Nomor belum valid (contoh 081234567890)']}
+function recentCars(){return (load(K.recent)||[]).map(k=>S.models.findIndex(m=>m.b+'|'+m.m===k)).filter(i=>i>=0)}
+function frequentCars(){
+  const cnt={};Q.forEach(r=>{const d=r.draft;if(d.unreg)return;const k=d.brand+'|'+d.model;cnt[k]=(cnt[k]||0)+1});
+  let ks=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  ['Toyota|Avanza','Mitsubishi|Xpander','Toyota|Innova Zenix','Honda|Brio','Toyota|Fortuner','Daihatsu|Xenia','Toyota|Calya','Honda|HR-V'].forEach(k=>{if(ks.indexOf(k)<0)ks.push(k)});
+  return ks.map(k=>S.models.findIndex(m=>m.b+'|'+m.m===k)).filter(i=>i>=0).slice(0,8);
+}
+function carChip(i){const m=S.models[i];return '<button class="chip sm" data-act="pickCar" data-i="'+i+'">'+esc(m.b)+' '+esc(m.m)+'</button>'}
+function modelRow(i,showBrand){const m=S.models[i];return '<button class="res" data-act="pickCar" data-i="'+i+'"><span>'+(showBrand?'<span class="mute small">'+esc(m.b)+'</span> ':'')+esc(m.m)+'</span><span class="rb">'+(m.sv?'<span class="badge warn">Survei</span>':'')+'<span class="badge '+(m.s==='SP'?'warn':'')+'">'+sizeName(m.s)+'</span></span></button>'}
+function step1(){
+  const e=ui.showErr?errs1():{};
+  let h='';
+  if(hasCar(D)&&!D.unreg){
+    const w=carWarn(D);
+    h+='<div class="carcard"><div class="cc-top"><span class="mono lg">'+esc(mono(D.brand))+'</span><div style="flex:1"><span class="small" style="color:#c9c7c0">'+esc(D.brand)+'</span><b>'+esc(D.model)+'</b></div><button class="chip sm dk" data-act="clearCar">Ganti</button></div>'+
+    '<div class="catbig"><small>Kategori otomatis</small><strong>'+esc(sizeName(D.size).toUpperCase())+'</strong></div><div class="chips">'+(D.survey||D.size==='SP'?'<span class="badge warn">Wajib survei</span>':'<span class="badge">Estimasi · sesuai database</span>')+'</div>'+
+    (w.length?'<ul class="warns">'+w.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+'</div>';
+    h+='<label class="field"><span>Tahun / generasi <em>(opsional)</em></span><input class="inp" data-f="year" value="'+esc(D.year)+'" placeholder="contoh: 2022" inputmode="numeric"></label>';
+  }else if(D.unreg){
+    h+='<div class="card" style="display:grid;gap:12px"><div class="toggle" style="min-height:0"><h3>Mobil belum terdaftar</h3><button class="linkbtn" data-act="clearCar">Batal, cari lagi</button></div>'+
+    '<div class="warnbox">Tidak ada kategori atau harga otomatis. Penawaran dikirim tanpa angka dan masuk ke Owner untuk survei.</div>'+
+    '<div class="grid2"><label class="field"><span>Merek</span><input class="inp" data-f="brand" value="'+esc(D.brand)+'" list="brandList" placeholder="contoh: Toyota"></label><label class="field"><span>Model</span><input class="inp" data-f="model" value="'+esc(D.model)+'" placeholder="contoh: Sienta"></label></div>'+
+    '<datalist id="brandList">'+Object.keys(brands()).sort().map(b=>'<option value="'+esc(b)+'">').join('')+'</datalist>'+
+    '<label class="field"><span>Tahun / generasi <em>(opsional)</em></span><input class="inp" data-f="year" value="'+esc(D.year)+'" inputmode="numeric"></label>'+
+    '<div class="field"><span>Perkiraan ukuran untuk Owner <em>(tidak memengaruhi harga)</em></span><div class="chips">'+SIZES.filter(s=>s.k!=='SP').map(s=>'<button class="chip sm '+(D.estSize===s.k?'on':'')+'" data-act="estSize" data-k="'+s.k+'">'+s.n+'</button>').join('')+'</div></div></div>';
+  }else{
+    h+='<div class="searchbox"><input class="inp" id="carQ" data-f="carQ" value="'+esc(ui.carQ)+'" placeholder="Cari merek atau model mobil…" autocomplete="off" inputmode="search" aria-label="Cari merek atau model mobil"></div><div id="carRes">'+carResults()+'</div>';
+  }
+  if(e.car)h+='<p class="err">'+e.car+'</p>';
+  if(hasCar(D)||D.unreg){
+    h+='<div class="card" style="display:grid;gap:12px"><div class="field"><span>Warna kendaraan</span></div><div class="chips">'+COLORS.map(c=>'<button class="chip '+(D.color===c[0]?'on':'')+'" data-act="color" data-c="'+c[0]+'"><span class="dot" style="background:'+c[1]+'"></span>'+c[0]+'</button>').join('')+'</div>'+
+    (D.color==='Lainnya'?'<input class="inp" data-f="colorOther" value="'+esc(D.colorOther)+'" placeholder="Tulis warna, contoh: Hijau army">':'')+(e.color?'<span class="err">'+e.color+'</span>':'')+'</div>';
+  }
+  return h;
+}
+function carResults(){
+  const q=ui.carQ.trim();let h='';
+  if(q){
+    const nq=nk(q);const bm=Object.keys(brands()).filter(b=>nq.length>=2&&nk(b).indexOf(nq)===0);
+    const res=searchModels(S.models,q).slice(0,8);
+    if(bm.length)h+='<div class="chips" style="margin-bottom:8px">'+bm.map(b=>'<button class="chip sm" data-act="brand" data-b="'+esc(b)+'">Semua model '+esc(b)+' ›</button>').join('')+'</div>';
+    if(res.length)h+='<p class="small mute" style="margin:0 0 6px">'+(res.length===1?'1 mobil cocok — ketuk untuk memilih':res.length+' mobil cocok — pilih yang benar')+'</p><div class="results">'+res.map(i=>modelRow(i,true)).join('')+'</div>';
+    if(!res.length&&!bm.length)h+='<div class="empty" style="padding:16px">"'+esc(q)+'" tidak ada di database.</div>';
+  }else if(ui.brandPick){
+    const b=ui.brandPick;const list=S.models.map((m,i)=>({m,i})).filter(o=>o.m.b===b).sort((x,y)=>x.m.m.localeCompare(y.m.m,'id',{numeric:true}));
+    h+='<div class="toggle" style="min-height:44px"><h3><span class="mono">'+esc(mono(b))+'</span> Pilih model '+esc(b)+'</h3><button class="chip sm" data-act="brand" data-b="">Ganti merek</button></div>';
+    h+='<input class="inp" data-f="mfilter" id="mfilter" value="'+esc(ui.mfilter)+'" placeholder="Saring model '+esc(b)+'…" autocomplete="off" style="margin:6px 0 8px"><div class="results" id="mres">'+brandModels()+'</div>';
+  }else{
+    const rc=recentCars(),fq=frequentCars();
+    if(rc.length)h+='<div class="sect"><p class="lbl">Mobil terakhir</p><div class="chips">'+rc.map(carChip).join('')+'</div></div>';
+    h+='<div class="sect"><p class="lbl">Sering dipilih</p><div class="chips">'+fq.map(carChip).join('')+'</div></div>';
+    const bc=brands();const all=Object.keys(bc);const pop=POP_BRANDS.filter(b=>bc[b]);const rest=all.filter(b=>pop.indexOf(b)<0).sort();
+    h+='<div class="sect"><p class="lbl">Pilih merek</p><div class="bgrid">'+(ui.allBrands?pop.concat(rest):pop).map(b=>'<button class="brand" data-act="brand" data-b="'+esc(b)+'"><span class="mono">'+esc(mono(b))+'</span><span>'+esc(b)+'</span><small>'+bc[b]+' model</small></button>').join('')+'</div>'+
+    (ui.allBrands?'':'<button class="btn ghost" style="margin-top:10px" data-act="allBrands">Merek lain ('+rest.length+') ▾</button>')+'</div>';
+  }
+  h+='<button class="btn ghost" style="margin-top:12px" data-act="unreg">Mobil belum terdaftar</button>';
+  return h;
+}
+function brandModels(){
+  const f=nk(ui.mfilter);const list=S.models.map((m,i)=>({m,i})).filter(o=>o.m.b===ui.brandPick&&(!f||nk(o.m.m).indexOf(f)>=0)).sort((x,y)=>x.m.m.localeCompare(y.m.m,'id',{numeric:true}));
+  return list.map(o=>modelRow(o.i,false)).join('')||'<p class="small mute">Tidak ada model yang cocok.</p>';
+}
+function maxQty(p){return p.pos&&p.pos.length?p.pos.length:Math.max(1,+p.max||1)}
+function step2(){
+  const c=compute(D,S);
+  let h='<div class="sizebar"><p class="small mute">Ketuk + untuk menambah panel. Pilih posisi agar tidak terhitung ganda.</p>'+(c.survey?'':officialBadge())+'</div>'+(ui.admin&&c.survey?'<div class="infobox">Mode Owner: isi harga hasil survei per panel di bawah panel yang dipilih.</div>':'')+'<div class="plist">';
+  S.panels.forEach(p=>{
+    const l=D.lines[p.id]||{qty:0,pos:[]};const base=PRICED.indexOf(D.size)>=0?toNum(p.prices[D.size]):0;const ov=toNum(l.ov);const u=ov||base;const mx=maxQty(p);
+    h+='<div class="prow '+(l.qty?'on':'')+'"><div class="main"><div class="ic">'+carSvg(p.icon)+'</div><div><b>'+esc(p.name)+'</b><span class="pr num">'+(u?rp(u)+' / panel'+(ov?' · hasil survei':(c.survey?' · acuan':'')):'Harga survei')+'</span></div>'+
+    '<div class="stepper"><button data-act="dec" data-p="'+p.id+'" aria-label="Kurangi '+esc(p.name)+'" '+(l.qty?'':'disabled')+'>−</button><output aria-live="polite">'+l.qty+'</output><button class="plus" data-act="inc" data-p="'+p.id+'" aria-label="Tambah '+esc(p.name)+'" '+(l.qty>=mx?'disabled':'')+'>+</button></div></div>';
+    if(l.qty)h+='<div class="sub num"><span>'+l.qty+' × '+(u?rp(u):'harga survei')+'</span><span>'+(u?rp(u*l.qty):'Survei')+'</span></div>';
+    if(l.qty&&ui.admin&&c.survey)h+='<label class="field" style="margin-top:8px"><span>Harga hasil survei per panel (Owner)</span><input class="inp num" data-f="ov.'+p.id+'" data-money="1" inputmode="numeric" value="'+(ov?rp(ov).replace('Rp',''):'')+'" placeholder="'+(base?'acuan '+rp(base).replace('Rp',''):'isi harga')+'"></label>';
+    if(p.pos&&p.pos.length&&l.qty)h+='<div class="pos"><div class="chips">'+p.pos.map(ps=>'<button class="chip sm '+(l.pos.indexOf(ps)>=0?'on':'')+'" data-act="pos" data-p="'+p.id+'" data-ps="'+esc(ps)+'">'+esc(ps)+'</button>').join('')+'</div></div>';
+    h+='</div>';
+  });
+  h+='<div class="prow '+(D.others.length?'on':'')+'"><div class="main"><div class="ic">'+carSvg('other')+'</div><div><b>Bagian lain</b><span class="pr">Spion, spoiler, dll · harga manual</span></div><button class="chip sm" data-act="addOther">+ Tambah</button></div>';
+  if(D.others.length){h+='<div class="pos" style="display:grid;gap:10px">'+D.others.map((o,i)=>'<div class="other"><div class="chips">'+['Spion','Spoiler','Handle pintu','Lis / garnish','Bak pickup','Tutup tangki'].map(n=>'<button class="chip sm '+(o.name===n?'on':'')+'" data-act="otherName" data-i="'+i+'" data-n="'+n+'">'+n+'</button>').join('')+'</div><div class="row"><label class="field"><span>Nama bagian</span><input class="inp" data-f="other.'+i+'.name" value="'+esc(o.name)+'" placeholder="Nama bagian"></label><label class="field"><span>Jumlah</span><input class="inp" data-f="other.'+i+'.qty" value="'+esc(o.qty)+'" inputmode="numeric"></label><button class="xbtn" data-act="delOther" data-i="'+i+'" aria-label="Hapus">×</button></div><label class="field"><span>Harga per bagian (Rp)</span><input class="inp num" data-f="other.'+i+'.price" data-money="1" value="'+(toNum(o.price)?rp(o.price).replace('Rp',''):'')+'" inputmode="numeric" placeholder="contoh: 250.000"></label></div>').join('')+'</div>'}
+  h+='</div></div>';
+  if(ui.showErr&&!c.lines.length)h+='<p class="err">Pilih minimal 1 panel. Untuk bagian lain, isi nama dan harganya.</p>';
+  return h;
+}
+function optCard(key,on,title,desc,amt,body){
+  return '<div class="opt '+(on?'on':'')+'"><button class="head" data-act="opt" data-k="'+key+'" aria-pressed="'+on+'"><span class="box">'+(on?ICON.check:'')+'</span><span><b>'+title+'</b><span class="d">'+desc+'</span></span><span class="amt num">'+(amt||'')+'</span></button>'+(on&&body?body:'')+'</div>';
+}
+function step3(){
+  const c=compute(D,S);const ex=k=>c.extras.find(e=>e.key===k);
+  const units=Math.max(1,unitCount(D));
+  let h='<p class="small mute">Pilih kondisi kendaraan. Biaya tambahan langsung dihitung.</p>';
+  h+=optCard('std',D.std,'Cat ulang standar','Tanpa biaya tambahan, sudah termasuk harga panel','');
+  const de=ex('dent');
+  h+=optCard('dent',D.dent.on,'Ada penyok / perlu dempul',rp(S.dentOptions[0])+'–'+rp(S.dentOptions[S.dentOptions.length-1])+' per panel, sesuai pemeriksaan',de?rp(de.amount):'',
+    '<div class="field"><span>Nominal per panel</span><div class="chips">'+S.dentOptions.map(n=>'<button class="chip sm '+(toNum(D.dent.nominal)===n?'on':'')+'" data-act="dentNom" data-n="'+n+'">'+rp(n).replace('Rp','').replace('.000','rb')+'</button>').join('')+'</div></div>'+
+    '<div class="toggle"><span class="small" style="font-weight:700">Jumlah panel yang didempul</span><div class="stepper"><button data-act="dentQ" data-d="-1" '+(D.dent.qty<=1?'disabled':'')+'>−</button><output>'+D.dent.qty+'</output><button class="plus" data-act="dentQ" data-d="1" '+(D.dent.qty>=units?'disabled':'')+'>+</button></div></div>'+
+    (de?'<div class="calcline num">'+de.detail+' = '+rp(de.amount)+'</div>':''));
+  const sp=ex('special');
+  h+=optCard('special',D.special.on,'Warna khusus','Tambahan '+S.specialOptions[0]+'–'+S.specialOptions[S.specialOptions.length-1]+'% dari biaya pengecatan',sp?rp(sp.amount):'',
+    '<div class="chips">'+S.specialOptions.map(p=>'<button class="chip sm '+(+D.special.pct===p?'on':'')+'" data-act="specPct" data-n="'+p+'">'+p+'%</button>').join('')+'</div>'+(sp?'<div class="calcline num">'+sp.detail+' = '+rp(sp.amount)+' <span class="tiny">(dibulatkan ke ribuan)</span></div>':''));
+  const bl=ex('blend');
+  h+=optCard('blend',D.blend.on,'Perlu blending warna','Harga sesuai konfirmasi teknisi',bl?(bl.amount?rp(bl.amount):'<span class="badge warn">Konfirmasi</span>'):'',
+    '<label class="field"><span>Nominal dari teknisi <em>(kosongkan jika belum ada)</em></span><input class="inp num" data-f="blend.amount" data-money="1" inputmode="numeric" value="'+(toNum(D.blend.amount)?rp(D.blend.amount).replace('Rp',''):'')+'" placeholder="Menunggu konfirmasi teknisi"></label>');
+  const hv=ex('heavy');
+  h+=optCard('heavy',D.heavy.on,'Ada kerusakan berat','Karat, bumper retak, dll · wajib survei',hv?(hv.amount?rp(hv.amount):'<span class="badge warn">Survei</span>'):'',
+    '<label class="field"><span>Catatan kerusakan</span><input class="inp" data-f="heavy.note" value="'+esc(D.heavy.note)+'" placeholder="contoh: karat di quarter kiri"></label><label class="field"><span>Harga setelah survei <em>(kosongkan jika belum survei)</em></span><input class="inp num" data-f="heavy.amount" data-money="1" inputmode="numeric" value="'+(toNum(D.heavy.amount)?rp(D.heavy.amount).replace('Rp',''):'')+'" placeholder="Harga menyusul"></label>');
+  // upsell coating
+  h+='<div class="upsell"><div><h3 style="color:#fff">Ingin sekaligus Ceramic Coating?</h3><p class="note">Tawarkan ke customer agar cat baru lebih terlindungi.</p></div><div class="chips"><button class="chip '+(D.coating.want===false?'on':'')+'" data-act="coat" data-w="0">Tidak</button><button class="chip '+(D.coating.want===true?'on':'')+'" data-act="coat" data-w="1">Ya, ingin penawaran coating</button></div>';
+  if(D.coating.want===true){
+    if(S.coating.length){h+='<div style="display:grid;gap:8px">'+S.coating.map(p=>'<button class="pkg '+(D.coating.pkg===p.id?'on':'')+'" data-act="pkg" data-id="'+esc(p.id)+'"><span><b>'+esc(p.name)+'</b>'+(p.note?'<br><span class="note">'+esc(p.note)+'</span>':'')+'</span><span class="num" style="font-weight:800;color:var(--gold)">'+(toNum(p.price)?rp(p.price):'Harga menyusul')+'</span></button>').join('')+'</div>'}
+    else h+='<p class="note">Paket coating belum diisi Admin. Penawaran tetap mencatat minat customer, harga coating menyusul (tidak dimasukkan ke total).</p>';
+    h+='<p class="note">Jadwal ceramic coating setelah repaint harus dikonfirmasi teknisi (waktu curing cat dan clear coat).</p>';
+  }
+  h+='</div>';
+  return h;
+}
+function rowsHtml(c){
+  let h='<table class="tbl"><tbody><tr class="sec"><td colspan="2">Pengecatan</td></tr>';
+  c.lines.forEach(l=>{h+='<tr><td>'+esc(l.name)+'<span class="sm">'+l.qty+' × '+(l.unit==null?'harga survei':rp(l.unit))+(l.pos.length?' · '+esc(l.pos.join(', ')):'')+(l.manual?' · harga manual':'')+(l.ov?' · harga hasil survei':'')+'</span></td><td>'+(l.sub==null?'<span class="pend">Survei</span>':rp(l.sub))+'</td></tr>'});
+  h+='<tr class="st"><td>Total pengecatan</td><td>'+rp(c.paintSub)+'</td></tr>';
+  if(c.extras.length){h+='<tr class="sec"><td colspan="2">Biaya tambahan</td></tr>';c.extras.forEach(e=>{h+='<tr><td>'+esc(e.label)+'<span class="sm">'+esc(e.detail)+'</span></td><td>'+(e.amount?rp(e.amount):'<span class="pend">Menyusul</span>')+'</td></tr>'});h+='<tr class="st"><td>Total biaya tambahan</td><td>'+rp(c.extrasSum)+'</td></tr>'}
+  if(c.disc)h+='<tr><td>'+esc(c.discLabel)+'</td><td class="neg">−'+rp(c.disc)+'</td></tr>';
+  if(c.coating)h+='<tr class="sec"><td colspan="2">Ceramic coating</td></tr><tr><td>'+esc(c.coating.name)+'</td><td>'+(c.coating.price?rp(c.coating.price):'<span class="pend">Menyusul</span>')+'</td></tr>';
+  return h+'</tbody></table>';
+}
+function totalHtml(c,label,approved){
+  if(c.survey&&!approved){
+    return '<div class="bigtotal"><small>Total</small><div class="amt sv">Menunggu survei</div><p class="note">Mobil ini wajib survei. Pesan WA dikirim tanpa angka; harga final dikirim setelah Owner menyetujui.</p>'+(c.grand?'<div class="row2"><span>Acuan internal (jangan dikirim)</span><b class="num">'+rp(c.grand)+'</b></div>':'')+(c.unpriced?'<p class="note">'+c.unpriced+' panel belum punya harga — diisi setelah survei.</p>':'')+'</div>';
+  }
+  let h='<div class="bigtotal"><small>'+(c.coating&&c.coating.price?'Total repaint + coating':label)+'</small><div class="amt" id="bigAmt">'+rp(c.grand)+'</div>';
+  if(c.coating&&c.coating.price)h+='<div class="row2"><span>Repaint</span><b class="num">'+rp(c.repaintNet)+'</b></div><div class="row2" style="margin-top:0;border:0;padding-top:4px"><span>Ceramic coating</span><b class="num">'+rp(c.coating.price)+'</b></div>';
+  if(c.pending.length)h+='<p class="note">Belum termasuk: '+esc(c.pending.join(', '))+' (menunggu konfirmasi teknisi)</p>';
+  return h+'</div>';
+}
+function draftRec(){const r=D.id&&Q.find(q=>q.id===D.id);return{no:r?r.no:'(belum disimpan)',updatedAt:Date.now(),sales:salesName,draft:D,calc:compute(D,S),approved:null}}
+function step4(){
+  const c=compute(D,S);const n=normWa(D.wa);const rec=draftRec();
+  const saved=D.id&&!ui.dirty;const e=ui.custErr?errsCust():{};const wh=waHint();
+  let h='<div class="card" style="display:grid;gap:12px" id="custCard"><h3>Data customer</h3>'+
+  '<label class="field"><span>Nama customer</span><input class="inp" data-f="customer" value="'+esc(D.customer)+'" placeholder="contoh: Budi" autocapitalize="words" autocomplete="off">'+(e.customer?'<span class="err">'+e.customer+'</span>':'')+'</label>'+
+  '<label class="field"><span>Nomor WhatsApp</span><input class="inp" data-f="wa" value="'+esc(D.wa)+'" type="tel" inputmode="tel" placeholder="0812xxxxxxxx" autocomplete="off"><span class="hint '+wh[0]+'" id="waHint">'+esc(wh[1])+'</span>'+(e.wa?'<span class="err">'+e.wa+'</span>':'')+'</label>'+
+  '<label class="field"><span>Nomor polisi <em>(opsional)</em></span><input class="inp" data-f="plate" value="'+esc(D.plate)+'" placeholder="DH 1234 AB" autocapitalize="characters" autocomplete="off"></label></div>';
+  h+='<div class="card" id="rowsWrap">'+rowsHtml(c)+'</div>';
+  if(!c.survey){
+    const dOpts=S.discountOptions.filter(p=>p<=S.discountMax);
+    h+='<div class="card" style="display:grid;gap:10px"><div class="toggle" style="min-height:0"><h3>Diskon</h3><span class="tiny mute">maks. '+S.discountMax+'% dari biaya repaint</span></div><div class="chips"><button class="chip sm '+(D.disc.type==='none'?'on':'')+'" data-act="disc" data-t="none">Tanpa diskon</button>'+dOpts.map(p=>'<button class="chip sm '+(D.disc.type==='pct'&&+D.disc.pct===p?'on':'')+'" data-act="disc" data-t="pct" data-n="'+p+'">'+p+'%</button>').join('')+'<button class="chip sm '+(D.disc.type==='nom'?'on':'')+'" data-act="disc" data-t="nom">Nominal</button></div>'+
+    (D.disc.type==='nom'?'<input class="inp num" data-f="disc.nom" data-money="1" inputmode="numeric" value="'+(toNum(D.disc.nom)?rp(D.disc.nom).replace('Rp',''):'')+'" placeholder="contoh: 100.000"><span class="err" id="discErr">'+(c.discCapped?'Diskon dibatasi maksimal '+rp(c.disc)+' ('+S.discountMax+'%)':'')+'</span>':'')+'</div>';
+  }
+  h+='<div id="totalWrap">'+totalHtml(c,'Total estimasi akhir',false)+'</div>';
+  if(!S.priceOfficial&&!c.survey)h+='<p class="tiny mute">Harga masih usulan awal (estimasi), belum harga final resmi perusahaan.</p>';
+  h+='<div class="actions"><a class="btn wa" id="waBtn" data-act="wa" data-kind="est" href="'+(n?esc(waLink(n,buildMsg(rec,'est',S))):'#')+'" target="_blank" rel="noopener">'+ICON.wa+(c.survey?'Kirim WA (tanpa harga, minta survei)':'Kirim Penawaran WhatsApp')+'</a>'+
+  '<div class="grid2"><button class="btn ghost" data-act="copy">'+ICON.copy+'Salin</button><button class="btn ghost" data-act="saveDraft">'+ICON.save+(saved?'Tersimpan':'Simpan Data')+'</button></div>'+
+  '<button class="btn ghost" data-act="askApprove">'+ICON.send+(c.survey?'Ajukan survei ke Owner':'Minta persetujuan Owner')+'</button>'+
+  '<button class="btn dark off" data-act="finalInfo" aria-disabled="true">Konfirmasi Harga Final (aktif setelah disetujui)</button>'+
+  '<button class="btn gold" data-act="new">'+ICON.plus+'Buat Perhitungan Baru</button></div>'+
+  '<p class="tiny mute">Tombol WA hanya membuka WhatsApp dengan pesan siap kirim. Pesan baru terkirim setelah Sales menekan kirim di WhatsApp.</p>';
+  return h;
+}
+function updateLive(){
+  if(ui.view!=='baru')return;
+  const c=compute(D,S);
+  const tb=document.getElementById('tb');if(tb)tb.innerHTML=barHtml();
+  if(ui.step===4){const tw=document.getElementById('totalWrap');if(tw)tw.innerHTML=totalHtml(c,'Total estimasi akhir',false);const rw=document.getElementById('rowsWrap');if(rw)rw.innerHTML=rowsHtml(c);const de=document.getElementById('discErr');if(de)de.textContent=c.discCapped?'Diskon dibatasi maksimal '+rp(c.disc)+' ('+S.discountMax+'%)':'';const n=normWa(D.wa);const a=document.getElementById('waBtn');if(a)a.href=n?waLink(n,buildMsg(draftRec(),'est',S)):'#'}
+}
+/* ---------- save logic ---------- */
+function saveDraftRec(status){
+  const t=Date.now();const calc=compute(D,S);if(!status&&calc.survey)status='Menunggu Survei';
+  let rec=D.id&&Q.find(q=>q.id===D.id);
+  if(!rec){rec=createRec(D,salesName,status||'Estimasi Baru',false,t);Q.unshift(rec);D.id=rec.id;rec.draft.id=rec.id;saveQ();saveD();ui.dirty=false;return{rec,isNew:true}}
+  const nd=clone(D);
+  if(JSON.stringify(rec.draft)!==JSON.stringify(nd)){
+    rec.revisions.push({rev:rec.rev,at:rec.updatedAt,sales:rec.sales,draft:rec.draft,calc:rec.calc,status:rec.status,approved:rec.approved});
+    rec.rev++;rec.draft=nd;rec.calc=calc;rec.updatedAt=t;rec.sales=salesName||rec.sales;
+    if(rec.approved){rec.approved=null}
+    const ns=status||'Estimasi Baru';rec.status=ns;rec.log.push({at:t,s:ns+' (revisi ke-'+rec.rev+')',by:salesName});
+  }else if(status&&rec.status!==status){rec.status=status;rec.updatedAt=t;rec.log.push({at:t,s:status,by:salesName})}
+  saveQ();ui.dirty=false;return{rec,isNew:false};
+}
+function setStatus(rec,s,by){rec.status=s;rec.updatedAt=Date.now();rec.log.push({at:rec.updatedAt,s:s,by:by||salesName});saveQ()}
+function askSent(rec){
+  modal({title:'Sudah dikirim di WhatsApp?',html:'<p class="mute">Tandai hanya jika pesan benar-benar sudah Anda kirim ke '+esc(rec.draft.customer)+'.</p>',ok:'Ya, tandai Penawaran Dikirim',cancel:'Belum',onOk:()=>{if(['Estimasi Baru','Menunggu Konfirmasi','Harga Disetujui'].indexOf(rec.status)>=0)setStatus(rec,'Penawaran Dikirim');toast('Status: Penawaran Dikirim');render()}});
+}
+
+/* ---------- history & detail ---------- */
+function histFiltered(){
+  const q=normQ(ui.hq);const qd=ui.hq.replace(/\D/g,'');
+  let list=Q.filter(r=>{if(ui.hs!=='Semua'&&r.status!==ui.hs)return false;if(!q)return true;const d=r.draft;
+    if(normQ(d.customer+' '+d.plate+' '+carName(d)+' '+r.no).indexOf(q)>=0)return true;if(normQ(d.plate).replace(/ /g,'').indexOf(q.replace(/ /g,''))>=0)return true;
+    if(qd.length>=3){const w=(normWa(d.wa)||d.wa.replace(/\D/g,''));if(w.indexOf(qd)>=0||w.indexOf(qd.replace(/^0/,'62'))>=0)return true}return false});
+  return list.sort((a,b)=>b.updatedAt-a.updatedAt);
+}
+function vHistory(){
+  const list=histFiltered();
+  const hasSample=Q.some(r=>r.sample);
+  let h=topbar('Riwayat penawaran',Q.length+' penawaran tersimpan di HP ini','home')+'<main class="wrap page">';
+  h+='<input class="inp" data-f="hq" id="hq" value="'+esc(ui.hq)+'" placeholder="Cari nama, no. polisi, atau no. WA" inputmode="search" autocomplete="off">';
+  h+='<div class="chips scroll">'+['Semua'].concat(STATUSES).map(s=>'<button class="chip sm '+(ui.hs===s?'on':'')+'" data-act="hs" data-s="'+s+'">'+s+'</button>').join('')+'</div><div id="hlist" style="display:grid;gap:10px">'+histList(list)+'</div>';
+  h+='<div class="grid2"><button class="btn ghost" data-act="exportCsv">Ekspor CSV</button>'+(hasSample?'<button class="btn ghost" data-act="delSample">Hapus data contoh</button>':'<span></span>')+'</div></main>';
+  return h;
+}
+function histList(list){
+  if(!list.length)return '<div class="empty">'+(Q.length?'Tidak ada penawaran yang cocok.':'Belum ada penawaran. Buat penawaran pertama dari halaman utama.')+'</div>';
+  return list.map(r=>{const d=r.draft;return '<button class="qcard" data-act="open" data-id="'+r.id+'"><div class="r1"><div><b>'+esc(d.customer)+'</b>'+(r.sample?' <span class="badge grey">Contoh</span>':'')+'<div class="small mute">'+esc(carName(d))+(d.plate?' · '+esc(d.plate.toUpperCase()):'')+'</div></div><span class="tot">'+rp(r.calc.grand)+'</span></div><div class="meta">'+statusBadge(r.status)+'<span>'+esc(r.no)+(r.rev>1?' · rev. '+r.rev:'')+'</span><span>'+fmtDate(r.updatedAt)+'</span>'+(r.sales?'<span>'+esc(r.sales)+'</span>':'')+'</div></button>'}).join('');
+}
+function vDetail(){
+  const r=Q.find(q=>q.id===ui.detail);if(!r){ui.view='riwayat';return vHistory()}
+  const d=r.draft,c=r.calc;const n=normWa(d.wa);
+  const finOk=!!r.approved&&FINAL_OK.indexOf(r.status)>=0;
+  let h=topbar(r.no,(r.rev>1?'Revisi ke-'+r.rev+' · ':'')+fmtDate(r.updatedAt)+(r.sales?' · '+esc(r.sales):''),'riwayat')+'<main class="wrap page">';
+  h+='<div class="card sum"><div class="r1" style="display:flex;justify-content:space-between;gap:10px"><span class="who">'+esc(d.customer)+'</span>'+statusBadge(r.status)+'</div><span>'+esc(carName(d))+' · <b>'+esc(catLabel(c))+'</b> · '+esc(colorName(d))+(d.plate?' · '+esc(d.plate.toUpperCase()):'')+'</span><span class="small mute">WA '+esc(n||d.wa)+'</span>'+(r.approved?'<span class="small" style="color:var(--ok);font-weight:700">✓ Harga disetujui Owner '+fmtDate(r.approved.at)+'</span>':'')+'</div>';
+  h+='<div class="card">'+rowsHtml(c)+'</div>'+totalHtml(c,r.approved?'Total harga (disetujui)':'Total estimasi akhir',!!r.approved);
+  h+='<div class="actions"><a class="btn wa" data-act="wa" data-kind="est" data-id="'+r.id+'" href="'+(n?esc(waLink(n,buildMsg(r,'est',S))):'#')+'" target="_blank" rel="noopener">'+ICON.wa+'Kirim Penawaran Estimasi</a>'+
+  (finOk?'<a class="btn wa" data-act="wa" data-kind="fin" data-id="'+r.id+'" href="'+(n?esc(waLink(n,buildMsg(r,'fin',S))):'#')+'" target="_blank" rel="noopener">'+ICON.wa+'Kirim Konfirmasi Harga Final</a>':'<button class="btn dark off" data-act="finalInfo" aria-disabled="true">Konfirmasi Harga Final (aktif setelah disetujui)</button>')+
+  '<div class="grid2"><button class="btn ghost" data-act="copyRec" data-id="'+r.id+'" data-kind="'+(finOk?'fin':'est')+'">'+ICON.copy+'Salin pesan</button><button class="btn ghost" data-act="revise" data-id="'+r.id+'">'+ICON.edit+'Revisi</button></div>';
+  if(ui.admin&&!r.approved&&r.status!=='Batal')h+='<button class="btn gold" data-act="approve" data-id="'+r.id+'">'+ICON.check+'Setujui harga (Owner)</button>';
+  if(r.status==='Estimasi Baru'||r.status==='Menunggu Survei')h+='<button class="btn ghost" data-act="askApproveRec" data-id="'+r.id+'">'+ICON.send+'Minta persetujuan Owner</button>';
+  h+='</div>';
+  const opts=STATUSES.filter(s=>ui.admin||s!=='Harga Disetujui'||r.status==='Harga Disetujui');
+  h+='<div class="card" style="display:grid;gap:10px"><label class="field"><span>Ubah status</span><select class="inp" data-ch="status" data-id="'+r.id+'">'+opts.map(s=>'<option '+(s===r.status?'selected':'')+'>'+s+'</option>').join('')+'</select></label>'+(ui.admin?'':'<p class="tiny mute">Status "Harga Disetujui" hanya bisa diberikan Owner/Admin.</p>')+'</div>';
+  h+='<details class="card"><summary>Histori ('+(r.revisions.length+1)+' versi harga · '+r.log.length+' perubahan status)</summary>';
+  h+='<div class="rev"><span><b>Rev. '+r.rev+' (sekarang)</b><br><span class="tiny mute">'+fmtDate(r.updatedAt)+' · '+esc(r.sales)+'</span></span><b class="num">'+rp(c.grand)+'</b></div>';
+  r.revisions.slice().reverse().forEach(v=>{h+='<div class="rev"><span>Rev. '+v.rev+'<br><span class="tiny mute">'+fmtDate(v.at)+' · '+esc(v.sales)+' · '+v.calc.lines.map(l=>l.qty+' '+esc(l.name)).join(', ')+'</span></span><span class="num" style="text-decoration:line-through;color:var(--mute)">'+rp(v.calc.grand)+'</span></div>'});
+  h+='<div style="margin-top:8px">'+r.log.slice().reverse().map(l=>'<div class="tiny mute">'+fmtDate(l.at)+' · '+esc(l.s)+(l.by?' · '+esc(l.by):'')+'</div>').join('')+'</div></details>';
+  h+='</main>';return h;
+}
+
+/* ---------- price list ---------- */
+const short=n=>{n=toNum(n);if(n>=1000000){const v=(n/1000000).toFixed(n%100000?2:1).replace(/\.?0+$/,'').replace('.',',');return v+' jt'}return Math.round(n/1000)+' rb'};
+function vPrices(){
+  let h=topbar('Daftar harga','Harga per panel · '+(S.priceOfficial?'harga resmi':'usulan, belum final'),'home')+'<main class="wrap page">';
+  h+='<div class="card"><div class="sizebar" style="margin-bottom:8px"><h3>Cat per panel</h3>'+officialBadge()+'</div><table class="ptbl"><thead><tr><th>Panel</th>'+PRICED.map(k=>'<th>'+(k==='XL'?'XL':sizeName(k))+'</th>').join('')+'</tr></thead><tbody>'+
+  S.panels.map(p=>'<tr><td>'+esc(p.name)+'</td>'+PRICED.map(k=>'<td>'+short(p.prices[k])+'</td>').join('')+'</tr>').join('')+'</tbody></table><p class="tiny mute" style="margin-top:8px">rb = ribu, jt = juta. Kategori Special dan mobil wajib survei: harga setelah survei.</p></div>';
+  h+='<div class="card" style="display:grid;gap:8px"><h3>Biaya tambahan</h3><table class="tbl"><tbody><tr><td>Penyok / dempul ringan</td><td>'+short(S.dentOptions[0])+'–'+short(S.dentOptions[S.dentOptions.length-1])+' /panel</td></tr><tr><td>Warna khusus</td><td>+'+S.specialOptions[0]+'–'+S.specialOptions[S.specialOptions.length-1]+'%</td></tr><tr><td>Blending</td><td>Konfirmasi teknisi</td></tr><tr><td>Karat, retak, kerusakan berat</td><td>Setelah survei</td></tr><tr><td>Spion, spoiler, bagian kecil</td><td>Harga manual</td></tr></tbody></table></div>';
+  h+='<div class="card" style="display:grid;gap:8px"><h3>Ceramic coating</h3>'+(S.coating.length?'<table class="tbl"><tbody>'+S.coating.map(c=>'<tr><td>'+esc(c.name)+(c.note?'<span class="sm">'+esc(c.note)+'</span>':'')+'</td><td>'+(toNum(c.price)?rp(c.price):'Menyusul')+'</td></tr>').join('')+'</tbody></table>':'<p class="small mute">Paket belum diisi Admin.</p>')+'</div>';
+  h+='<div class="card" style="display:grid;gap:10px"><h3>Kategori mobil ('+S.models.length+' model)</h3><input class="inp" data-f="pq" id="pq" value="'+esc(ui.pq)+'" placeholder="Cari merek atau model" inputmode="search"><div id="plist">'+modelGroups()+'</div></div></main>';
+  return h;
+}
+function modelGroups(){
+  const q=ui.pq.trim();if(!q)return '<p class="small mute">Ketik nama mobil, contoh: Raize, HRV, Pajero.</p>';
+  const nq=nk(q);const bm=Object.keys(brands()).filter(b=>nk(b).indexOf(nq)===0);
+  let idx=bm.length?S.models.map((m,i)=>i).filter(i=>bm.indexOf(S.models[i].b)>=0):searchModels(S.models,q);
+  if(!idx.length)return '<p class="small mute">Tidak ditemukan di database.</p>';
+  return '<table class="tbl"><tbody>'+idx.slice(0,80).map(i=>{const m=S.models[i];return '<tr><td>'+esc(m.b)+' '+esc(m.m)+(m.n?'<span class="sm">'+esc(m.n)+'</span>':'')+'</td><td>'+sizeName(m.s)+(m.sv?' · <span class="pend">survei</span>':'')+'</td></tr>'}).join('')+'</tbody></table>';
+}
+
+/* ---------- admin ---------- */
+const TABS=[['penawaran','Penawaran'],['harga','Harga panel'],['mobil','Model mobil'],['tambahan','Biaya & diskon'],['coating','Coating'],['template','Template WA'],['data','Data & keamanan']];
+function vAdmin(){
+  if(!ui.admin){return topbar('Admin / Owner','Masukkan PIN','home')+'<main class="wrap page"><div class="card" style="display:grid;gap:12px"><label class="field"><span>PIN Admin</span><input class="inp" id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••"></label><button class="btn gold" data-act="unlock">Masuk</button><p class="tiny mute">PIN awal demo: 1234 — segera ganti di menu Data & keamanan. PIN ini hanya penghalang sederhana di HP ini, bukan sistem keamanan sungguhan.</p></div></main>'}
+  let h=topbar('Admin / Owner','Pengaturan harga & persetujuan','home','<button class="chip sm" style="background:#2a2c31;border-color:#3a3c42;color:#fff" data-act="lock">Kunci</button>')+'<main class="wrap page"><div class="tabs">'+TABS.map(t=>'<button class="chip sm '+(ui.tab===t[0]?'on':'')+'" data-act="tab" data-t="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  const t=ui.tab;
+  if(t==='penawaran'){
+    const pend=Q.filter(r=>r.status==='Menunggu Konfirmasi');const others=Q.filter(r=>r.status!=='Menunggu Konfirmasi').sort((a,b)=>b.updatedAt-a.updatedAt);
+    h+='<h2>Menunggu persetujuan ('+pend.length+')</h2>';
+    h+=pend.length?pend.map(r=>'<div class="card" style="display:grid;gap:10px"><div class="r1" style="display:flex;justify-content:space-between;gap:10px"><div><b>'+esc(r.draft.customer)+'</b><div class="small mute">'+esc(carName(r.draft))+' · '+r.calc.sizeName+' · '+esc(r.sales)+'</div></div><b class="num">'+rp(r.calc.grand)+'</b></div><div class="small mute">'+r.calc.lines.map(l=>l.qty+'× '+esc(l.name)).join(', ')+(r.calc.extras.length?' · +'+r.calc.extras.map(e=>esc(e.label)).join(', '):'')+'</div><div class="grid2"><button class="btn gold" data-act="approve" data-id="'+r.id+'">Setujui</button><button class="btn ghost" data-act="revise" data-id="'+r.id+'">Revisi</button></div><button class="linkbtn" style="justify-self:start;padding:0" data-act="open" data-id="'+r.id+'">Lihat detail</button></div>').join(''):'<div class="empty">Tidak ada penawaran yang menunggu.</div>';
+    h+='<h2 style="margin-top:8px">Semua penawaran ('+Q.length+')</h2><div style="display:grid;gap:10px">'+histList(others)+'</div>';
+  }
+  if(t==='harga'){
+    h+='<div class="card"><div class="toggle"><span><b>Harga sudah resmi</b><br><span class="tiny mute">Matikan selama harga masih usulan (estimasi)</span></span><label class="sw"><input type="checkbox" data-ch="official" '+(S.priceOfficial?'checked':'')+' aria-label="Harga sudah resmi"><span></span></label></div></div>';
+    h+='<div class="card"><p class="tiny mute" style="margin-bottom:6px">Ubah angka lalu ketuk di luar kotak. Perubahan langsung dipakai untuk perhitungan baru; penawaran lama tetap memakai harga lamanya.</p>'+S.panels.map((p,i)=>'<div class="aprow"><div class="mrow" style="grid-template-columns:minmax(0,1fr) 44px;border:0;padding:0"><input class="inp" data-s="panels.'+i+'.name" value="'+esc(p.name)+'" aria-label="Nama panel"><button class="xbtn" data-act="delPanel" data-i="'+i+'" aria-label="Hapus panel">×</button></div><div class="p4">'+SIZES.map(s=>'<label>'+s.k+'<input class="inp num" data-s="panels.'+i+'.prices.'+s.k+'" data-type="num" inputmode="numeric" value="'+toNum(p.prices[s.k])+'"></label>').join('')+'</div><label class="field"><span class="tiny">Posisi (pisahkan koma, kosongkan jika 1 bagian)</span><input class="inp" style="height:44px;font-size:15px" data-s="panels.'+i+'.pos" data-type="list" value="'+esc((p.pos||[]).join(', '))+'"></label></div>').join('')+'</div><button class="btn ghost" data-act="addPanel">'+ICON.plus+'Tambah jenis panel</button>';
+    const lg=S.priceLog||[];h+='<details class="card"><summary>Histori perubahan harga & database ('+lg.length+')</summary>'+(lg.length?lg.slice(0,60).map(x=>'<div class="rev"><span>'+esc(x.what)+'<br><span class="tiny mute">'+fmtDate(x.at)+' '+new Date(x.at).toTimeString().slice(0,5)+'</span></span><span class="num tiny" style="text-align:right">'+esc(x.old)+' → <b>'+esc(x.nw)+'</b></span></div>').join(''):'<p class="small mute" style="margin-top:8px">Belum ada perubahan.</p>')+'<p class="tiny mute" style="margin-top:8px">Penawaran yang sudah tersimpan tidak ikut berubah saat harga diubah.</p></details>';
+  }
+  if(t==='mobil'){
+    const bc=brands();const nb=Object.keys(bc).length;const nsv=S.models.filter(m=>m.sv).length;const nsp=S.models.filter(m=>m.s==='SP').length;const nchk=S.models.filter(m=>m.st!=='V'&&/cek|verifikasi/i.test(m.n||'')).length;
+    h+='<div class="card"><div class="statrow"><div><b>'+S.models.length+'</b><span>model</span></div><div><b>'+nb+'</b><span>merek</span></div><div><b>'+nsv+'</b><span>wajib survei</span></div><div><b>'+nsp+'</b><span>Special</span></div></div><p class="tiny mute" style="margin-top:8px">Database master versi '+esc(S.masterVersion||'-')+'. Kategori hanya berubah jika Owner mengubahnya di sini.</p></div>';
+    const unreg=Q.filter(r=>r.draft.unreg&&!S.models.some(m=>nk(m.b+m.m)===nk(r.draft.brand+r.draft.model)));
+    if(unreg.length)h+='<div class="card" style="display:grid;gap:8px"><h3>Mobil belum terdaftar dari penawaran ('+unreg.length+')</h3><p class="tiny mute">Perlu verifikasi Owner sebelum masuk database.</p>'+unreg.map(r=>'<div class="mrow" style="grid-template-columns:minmax(0,1fr) auto"><span>'+esc(r.draft.brand)+' '+esc(r.draft.model)+(r.draft.estSize?' <span class="badge grey">perkiraan Sales: '+sizeName(r.draft.estSize)+'</span>':'')+'</span><button class="chip sm" data-act="regFromQuote" data-id="'+r.id+'">Tambahkan</button></div>').join('')+'</div>';
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Tambah merek / model</h3><div class="grid2"><input class="inp" id="nb" placeholder="Merek (baru/lama)" list="brandList2"><input class="inp" id="nm" placeholder="Model"></div><datalist id="brandList2">'+Object.keys(bc).sort().map(b=>'<option value="'+esc(b)+'">').join('')+'</datalist><div class="chips" id="nsz">'+SIZES.map((s,i)=>'<button class="chip sm '+(i===1?'on':'')+'" data-act="nsz" data-k="'+s.k+'">'+s.n+'</button>').join('')+'</div><div class="toggle"><span class="small" style="font-weight:700">Wajib survei</span><label class="sw"><input type="checkbox" id="nsv" aria-label="Wajib survei"><span></span></label></div><input class="inp" id="nnote" placeholder="Catatan (opsional), contoh: pintu geser"><button class="btn gold" data-act="addModel">Simpan ke database</button></div>';
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Edit klasifikasi</h3><select class="inp" data-ch="mbrand"><option value="">Semua merek</option>'+Object.keys(bc).sort().map(b=>'<option '+(ui.mbrand===b?'selected':'')+'>'+esc(b)+'</option>').join('')+'</select><input class="inp" data-f="mq" id="mq" value="'+esc(ui.mq)+'" placeholder="Cari model" inputmode="search"><div class="chips">'+[['all','Semua'],['sv','Wajib survei'],['sp','Special'],['chk','Perlu cek ('+nchk+')']].map(x=>'<button class="chip sm '+(ui.mflt===x[0]?'on':'')+'" data-act="mflt" data-k="'+x[0]+'">'+x[1]+'</button>').join('')+'</div><div id="mlist">'+adminModels()+'</div></div>';
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Import & ekspor database</h3><p class="tiny mute">Import file Excel (.xlsx), CSV, atau JSON dengan kolom Merek, Model, Kategori (S/M/L/XL/Special), Wajib Survei (Ya/Tidak), Catatan. Sebelum diterapkan, aplikasi menampilkan ringkasan perubahan.</p><label class="btn ghost" style="cursor:pointer">Pilih file untuk import<input type="file" id="impFile" accept=".xlsx,.xls,.csv,.json" style="display:none"></label><div class="grid2"><button class="btn ghost" data-act="exportDb">Ekspor CSV</button><button class="btn ghost" data-act="copyDb">Salin JSON</button></div><button class="btn ghost" data-act="resetMaster" style="color:var(--bad)">Kembalikan database master '+esc(MASTER_VERSION)+'</button></div>';
+  }
+  if(t==='tambahan'){
+    h+='<div class="card" style="display:grid;gap:14px"><label class="field"><span>Pilihan nominal dempul per panel (Rp, pisahkan koma)</span><input class="inp" data-s="dentOptions" data-type="numlist" value="'+S.dentOptions.join(', ')+'" inputmode="numeric"></label>'+
+    '<label class="field"><span>Pilihan persen warna khusus (pisahkan koma)</span><input class="inp" data-s="specialOptions" data-type="numlist" value="'+S.specialOptions.join(', ')+'" inputmode="numeric"></label>'+
+    '<label class="field"><span>Persen warna khusus default</span><input class="inp" data-s="specialDefault" data-type="num" value="'+S.specialDefault+'" inputmode="numeric"></label>'+
+    '<label class="field"><span>Diskon maksimal untuk Sales (%)</span><input class="inp" data-s="discountMax" data-type="num" value="'+S.discountMax+'" inputmode="numeric"></label>'+
+    '<label class="field"><span>Tombol diskon cepat (%, pisahkan koma)</span><input class="inp" data-s="discountOptions" data-type="numlist" value="'+S.discountOptions.join(', ')+'" inputmode="numeric"></label>'+
+    '<label class="field"><span>Nomor WA bengkel (tampil di pesan)</span><input class="inp" data-s="shopWa" value="'+esc(S.shopWa)+'" inputmode="tel"></label></div>';
+  }
+  if(t==='coating'){
+    h+='<div class="card"><p class="tiny mute">Kosongkan harga jika belum ada — aplikasi tidak akan membuat harga sendiri.</p>'+(S.coating.length?S.coating.map((c,i)=>'<div class="aprow"><div class="mrow" style="grid-template-columns:minmax(0,1fr) 44px;border:0;padding:0"><input class="inp" data-s="coating.'+i+'.name" value="'+esc(c.name)+'" placeholder="Nama paket"><button class="xbtn" data-act="delCoat" data-i="'+i+'" aria-label="Hapus paket">×</button></div><div class="grid2"><input class="inp num" data-s="coating.'+i+'.price" data-type="numnull" value="'+(toNum(c.price)||'')+'" placeholder="Harga (Rp)" inputmode="numeric"><input class="inp" data-s="coating.'+i+'.note" value="'+esc(c.note||'')+'" placeholder="Catatan"></div></div>').join(''):'<div class="empty">Belum ada paket coating.</div>')+'</div><button class="btn ghost" data-act="addCoat">'+ICON.plus+'Tambah paket coating</button>';
+  }
+  if(t==='template'){
+    const ph='{nama} {mobil} {kategori} {warna} {nopol} {rincian} {no} {tanggal} {sales} {wa_toko}';
+    h+='<div class="infobox">Kode yang otomatis diganti: '+esc(ph)+'. Format WA: *tebal*, _miring_.</div>'+
+    ['est','fin'].map(k=>'<div class="card" style="display:grid;gap:10px"><h3>'+(k==='est'?'1. Penawaran Estimasi':'2. Konfirmasi Harga Final')+'</h3><textarea class="inp" style="min-height:280px" data-s="templates.'+k+'">'+esc(S.templates[k])+'</textarea><div class="grid2"><button class="btn ghost" data-act="tplPreview" data-k="'+k+'">Lihat contoh</button><button class="btn ghost" data-act="tplReset" data-k="'+k+'">Kembalikan awal</button></div></div>').join('');
+  }
+  if(t==='data'){
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Ekspor & cadangan</h3><button class="btn ghost" data-act="exportCsv">Ekspor CSV (Excel)</button><button class="btn ghost" data-act="copyCsv">Salin CSV</button><button class="btn ghost" data-act="backup">Salin cadangan data (JSON)</button><label class="field"><span>Pulihkan dari cadangan</span><textarea class="inp" id="imp" placeholder="Tempel teks cadangan JSON di sini"></textarea></label><button class="btn ghost" data-act="restore">Pulihkan data</button></div>';
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Hapus data</h3>'+(Q.some(r=>r.sample)?'<button class="btn ghost" data-act="delSample">Hapus data contoh</button>':'<p class="small mute">Data contoh sudah dihapus.</p>')+'<button class="btn ghost" data-act="wipeQ" style="color:var(--bad)">Hapus semua penawaran</button><button class="btn ghost" data-act="resetS" style="color:var(--bad)">Kembalikan harga & pengaturan awal</button></div>';
+    h+='<div class="card" style="display:grid;gap:10px"><h3>Ganti PIN</h3><input class="inp" id="np" type="password" inputmode="numeric" placeholder="PIN baru (min. 4 angka)" autocomplete="new-password"><button class="btn gold" data-act="setPin">Simpan PIN</button><div class="warnbox">Penting: ini versi demo tanpa server. PIN hanya mencegah Sales membuka menu Admin di HP yang sama — bukan keamanan sungguhan. Data dan harga tersimpan per HP dan tidak tersinkron. Untuk dipakai beberapa Sales sekaligus perlu backend (misalnya Supabase) dengan login.</div></div>';
+  }
+  return h+'</main>';
+}
+function adminModels(){
+  const q=nk(ui.mq);const b=ui.mbrand;const f=ui.mflt;
+  if(!q&&!b&&f==='all')return '<p class="small mute" style="padding-top:6px">Pilih merek atau ketik nama model untuk mengedit.</p>';
+  const list=S.models.map((m,i)=>({m,i})).filter(o=>(!b||o.m.b===b)&&(!q||nk(o.m.b+o.m.m).indexOf(q)>=0)&&(f==='all'||(f==='sv'&&o.m.sv)||(f==='sp'&&o.m.s==='SP')||(f==='chk'&&o.m.st!=='V'&&/cek|verifikasi/i.test(o.m.n||'')))).sort((x,y)=>(x.m.b+x.m.m).localeCompare(y.m.b+y.m.m,'id',{numeric:true}));
+  if(!list.length)return '<p class="small mute" style="padding-top:6px">Tidak ditemukan.</p>';
+  return '<p class="tiny mute">'+list.length+' model</p>'+list.slice(0,120).map(o=>'<div class="aprow"><div class="toggle" style="min-height:0"><b>'+esc(o.m.b)+' '+esc(o.m.m)+'</b><span>'+(o.m.st==='V'?'<span class="badge ok">Terverifikasi</span>':'')+'</span></div>'+
+    '<div class="mrow" style="grid-template-columns:minmax(0,1fr) auto 44px;border:0;padding:0"><select class="inp" data-s="models.'+o.i+'.s" aria-label="Kategori">'+SIZES.map(s=>'<option value="'+s.k+'" '+(o.m.s===s.k?'selected':'')+'>'+s.n+'</option>').join('')+'</select><label class="toggle" style="gap:8px;min-height:44px"><span class="tiny" style="font-weight:700">Survei</span><span class="sw"><input type="checkbox" data-s="models.'+o.i+'.sv" data-type="bool" '+(o.m.sv?'checked':'')+' aria-label="Wajib survei"><span></span></span></label><button class="xbtn" data-act="delModel" data-i="'+o.i+'" aria-label="Hapus model">×</button></div>'+
+    '<input class="inp" style="height:44px;font-size:14px" data-s="models.'+o.i+'.n" value="'+esc(o.m.n||'')+'" placeholder="Catatan">'+(o.m.st!=='V'?'<button class="linkbtn" style="justify-self:start;padding:0" data-act="verify" data-i="'+o.i+'">Tandai terverifikasi</button>':'')+'</div>').join('')+(list.length>120?'<p class="tiny mute">Menampilkan 120 pertama — persempit pencarian.</p>':'');
+}
+/* ===== import database mobil ===== */
+function catNorm(v){const s=String(v==null?'':v).trim().toLowerCase().replace(/\s+/g,' ');return {s:'S',small:'S',m:'M',medium:'M',l:'L',large:'L',xl:'XL','extra large':'XL',special:'SP',sp:'SP',survei:'SP'}[s]||null}
+function yes(v){return /^(ya|y|yes|true|1)$/i.test(String(v==null?'':v).trim())}
+function rowsToModels(rows){
+  if(!rows.length)return{ok:[],bad:[]};
+  let head=null,start=0;
+  for(let r=0;r<Math.min(rows.length,10);r++){const h=rows[r].map(x=>nk(x));if(h.indexOf('merek')>=0||h.indexOf('brand')>=0){head=h;start=r+1;break}}
+  if(!head)return{ok:[],bad:[{row:0,why:'Kolom Merek/Model tidak ditemukan'}]};
+  const ix=n=>{for(const k of n){const i=head.indexOf(k);if(i>=0)return i}return -1};
+  const iB=ix(['merek','brand']),iM=ix(['model']),iC=ix(['kategori','category','ukuran']),iS=ix(['wajibsurvei','survei','survey']),iN=ix(['catatan','note','notes']),iSt=ix(['status']);
+  const ok=[],bad=[];
+  for(let r=start;r<rows.length;r++){const x=rows[r];if(!x||!x.some(v=>String(v==null?'':v).trim()))continue;
+    const b=String(x[iB]==null?'':x[iB]).trim(),m=String(x[iM]==null?'':x[iM]).trim(),c=catNorm(x[iC]);
+    if(!b||!m||!c){bad.push({row:r+1,why:(b+' '+m).trim()||'(kosong)'});continue}
+    let n=iN>=0?String(x[iN]==null?'':x[iN]).trim():'';if(n==='Konfirmasi generasi/model jika ada perubahan dimensi')n='';
+    const st=iSt>=0&&/verif/i.test(String(x[iSt]||''))&&!/perlu/i.test(String(x[iSt]||''))?'V':(iSt>=0&&/wajib/i.test(String(x[iSt]||''))?'K':'E');
+    ok.push({b,m,s:c,sv:iS>=0?yes(x[iS]):c==='SP',n,st});
+  }
+  return{ok,bad};
+}
+function parseCsv(t){const sep=(t.split('\n')[0].match(/;/g)||[]).length>=(t.split('\n')[0].match(/,/g)||[]).length?';':',';const out=[];let row=[],f='',q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}else if(ch==='"')q=true;else if(ch===sep){row.push(f);f=''}else if(ch==='\n'){row.push(f.replace(/\r$/,''));out.push(row);row=[];f=''}else f+=ch}
+  if(f||row.length){row.push(f);out.push(row)}return out}
+function loadXlsx(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>res(window.XLSX);s.onerror=()=>rej(new Error('Pembaca Excel gagal dimuat. Simpan file sebagai CSV lalu import lagi.'));document.head.appendChild(s)})}
+async function importFile(file){
+  try{
+    let rows=[];const name=file.name.toLowerCase();
+    if(/\.json$/.test(name)){let o=JSON.parse(await file.text());if(o&&o.models)o=o.models;if(!Array.isArray(o))throw new Error('Format JSON tidak dikenali');
+      rows=[['merek','model','kategori','wajib survei','catatan','status']].concat(o.map(x=>Array.isArray(x)?[x[0],x[1],x[2]==='SP'?'Special':x[2],x[3]?'Ya':'Tidak',x[4],x[5]==='V'?'Terverifikasi':(x[5]==='K'?'WAJIB':'')]:[x.Merek||x.merek||x.b||x.brand,x.Model||x.model||x.m,(x.Kategori||x.kategori||x.s||x.category)==='SP'?'Special':(x.Kategori||x.kategori||x.s||x.category),(x['Wajib Survei']!=null?x['Wajib Survei']:(x.sv?'Ya':'Tidak')),x.Catatan||x.catatan||x.n||'',x.Status||x.status||(x.st==='V'?'Terverifikasi':'')]))}
+    else if(/\.csv$/.test(name))rows=parseCsv((await file.text()).replace(/^﻿/,''));
+    else{const X=await loadXlsx();const wb=X.read(await file.arrayBuffer(),{type:'array'});let best=null;
+      for(const sn of wb.SheetNames){const r=X.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});if(r.slice(0,10).some(x=>x.map(nk).indexOf('merek')>=0)){best=r;if(/database/i.test(sn))break}}
+      rows=best||[]}
+    const {ok,bad}=rowsToModels(rows);
+    if(!ok.length){toast('Tidak ada baris valid. Pastikan ada kolom Merek, Model, Kategori');return}
+    const seen={};const uniq=[];let dup=0;ok.forEach(m=>{const k=nk(m.b)+'|'+nk(m.m);if(seen[k]){dup++;return}seen[k]=1;uniq.push(m)});
+    const cur={};S.models.forEach((m,i)=>cur[nk(m.b)+'|'+nk(m.m)]=i);
+    let add=0,chg=0,same=0;uniq.forEach(m=>{const i=cur[nk(m.b)+'|'+nk(m.m)];if(i==null)add++;else{const o=S.models[i];if(o.s!==m.s||!!o.sv!==!!m.sv)chg++;else same++}});
+    modal({title:'Ringkasan import',html:'<p>'+uniq.length+' model valid dari '+esc(file.name)+'</p><ul class="warns" style="color:var(--ink)"><li>'+add+' model baru</li><li>'+chg+' model berubah kategori/survei</li><li>'+same+' sama persis</li>'+(dup?'<li>'+dup+' duplikat di file dilewati</li>':'')+(bad.length?'<li>'+bad.length+' baris tidak valid dilewati (contoh: '+esc(bad.slice(0,3).map(b=>'baris '+b.row+' '+b.why).join('; '))+')</li>':'')+'</ul><label class="toggle"><span class="small" style="font-weight:700">Ganti seluruh database (bukan gabung)</span><span class="sw"><input type="checkbox" id="impReplace"><span></span></span></label>',ok:'Terapkan import',
+      onOk:m=>{const rep=m.querySelector('#impReplace').checked;const t=Date.now();
+        if(rep){S.models=uniq}else{uniq.forEach(x=>{const i=cur[nk(x.b)+'|'+nk(x.m)];if(i==null)S.models.push(x);else S.models[i]=Object.assign({},S.models[i],x)})}
+        logChange('Import database mobil ('+file.name+')',S.models.length+' model',rep?'ganti semua':'gabung: +'+add+', ubah '+chg);saveS();render();toast('Import selesai')}});
+  }catch(err){toast(err.message||'File tidak bisa dibaca')}
+}
+function dbCsv(){const q=v=>{v=String(v==null?'':v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  return '﻿'+['Merek','Model','Kategori','Wajib Survei','Status','Catatan'].join(';')+'\n'+S.models.slice().sort((a,b)=>(a.b+a.m).localeCompare(b.b+b.m)).map(m=>[m.b,m.m,m.s==='SP'?'Special':m.s,m.sv?'Ya':'Tidak',m.st==='V'?'Terverifikasi':(m.st==='K'?'WAJIB PENAWARAN KHUSUS':'ESTIMASI / PERLU VERIFIKASI'),m.n||''].map(q).join(';')).join('\n')}
+function logChange(what,oldV,newV){S.priceLog=S.priceLog||[];S.priceLog.unshift({at:Date.now(),what:what,old:oldV,nw:newV});if(S.priceLog.length>300)S.priceLog.length=300}
+async function saveFile(name,data){
+  if(dl){try{await dl.save({filename:name,data});toast('File disimpan');return}catch(e){if(e&&e.code==='declined')return}}
+  if(window.self===window.top){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/plain;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('File diunduh');return}catch(e){}}
+  if(await copyText(data))toast('Isi file disalin — tempel di Excel / Google Sheets');
+}
+/* ===== CSV ===== */
+function csv(){
+  const cols=['No','Tanggal','Update','Sales','Customer','WhatsApp','No Polisi','Mobil','Kategori','Warna','Panel','Total Pengecatan','Biaya Tambahan','Diskon','Total Repaint','Coating','Total Akhir','Status','Revisi','Contoh'];
+  const q=v=>{v=String(v==null?'':v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const rows=Q.map(r=>{const d=r.draft,c=r.calc;return[r.no,fmtDate(r.createdAt),fmtDate(r.updatedAt),r.sales,d.customer,normWa(d.wa)||d.wa,(d.plate||'').toUpperCase(),carName(d),catLabel(c),colorName(d),c.lines.map(l=>l.qty+'x '+l.name+(l.pos.length?' ('+l.pos.join('/')+')':'')).join(', '),c.paintSub,c.extrasSum,c.disc,c.repaintNet,c.coating?(c.coating.name+(c.coating.price?' '+c.coating.price:' (menyusul)')):'',c.grand,r.status,r.rev,r.sample?'ya':''].map(q).join(';')});
+  return '﻿'+cols.join(';')+'\n'+rows.join('\n');
+}
+async function exportCsv(){
+  const data=csv();const name='penawaran-rdpainthouse-'+new Date().toISOString().slice(0,10)+'.csv';
+  if(dl){try{await dl.save({filename:name,data});toast('File CSV disimpan');return}catch(e){if(e&&e.code==='declined')return}}
+  if(window.self===window.top){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('File CSV diunduh');return}catch(e){}}
+  if(await copyText(data))toast('CSV disalin — tempel di Excel / Google Sheets');
+}
+
+/* ===== actions ===== */
+function startNew(){D=newDraft();D.special.pct=S.specialDefault;ui.step=1;ui.carQ='';ui.brandPick='';ui.mfilter='';ui.custErr=false;ui.showErr=false;ui.dirty=false;saveD();go('baru')}
+function go(v){ui.view=v;const hs=v==='home'?'':v;if(location.hash.slice(1)!==hs){try{history.pushState(null,'',hs?'#'+hs:location.pathname+location.search)}catch(e){location.hash=hs}}render();window.scrollTo(0,0)}
+function changed(){ui.dirty=true;saveD()}
+function custOk(){if(Object.keys(errsCust()).length){ui.custErr=true;render();const c=document.getElementById('custCard');if(c)c.scrollIntoView({block:'start',behavior:'smooth'});toast('Isi nama customer dan nomor WhatsApp yang valid');return false}return true}
+const ACT={
+ go:t=>go(t.dataset.v),
+ new:()=>{if(ui.view==='baru'&&ui.step===4&&(!D.id||ui.dirty)&&compute(D,S).lines.length){modal({title:'Buat perhitungan baru?',html:'<p class="mute">Penawaran ini belum disimpan. Simpan dulu agar masuk riwayat.</p>',ok:'Simpan lalu buat baru',cancel:'Buang & buat baru',onOk:()=>{needSales(()=>{saveDraftRec();toast('Tersimpan');startNew()})},onCancel:startNew});return}startNew()},
+ resume:()=>{ui.step=1;ui.showErr=false;ui.dirty=true;go('baru')},
+ prev:()=>{if(ui.step>1){ui.step--;ui.showErr=false;render();window.scrollTo(0,0)}else go('home')},
+ next:()=>{
+   if(ui.step===1&&Object.keys(errs1()).length){ui.showErr=true;render();toast(hasCar(D)||D.unreg?'Pilih warna kendaraan':'Pilih merek dan model mobil');return}
+   if(ui.step===2&&!compute(D,S).lines.length){ui.showErr=true;render();toast('Pilih minimal 1 panel');return}
+   if(ui.step===2){const u=Math.max(1,unitCount(D));if(D.dent.qty>u)D.dent.qty=u}
+   ui.step++;ui.showErr=false;saveD();render();window.scrollTo(0,0)},
+ pickCar:t=>{const m=S.models[+t.dataset.i];Object.assign(D,{brand:m.b,model:m.m,size:m.s,survey:!!m.sv||m.s==='SP',carNote:m.n||'',unreg:false,estSize:''});ui.brandPick=m.b;ui.carQ='';ui.mfilter='';
+   const rc=(load(K.recent)||[]).filter(k=>k!==m.b+'|'+m.m);rc.unshift(m.b+'|'+m.m);store(K.recent,rc.slice(0,6));changed();render();window.scrollTo(0,0)},
+ clearCar:()=>{const keep=D.unreg?'':D.brand;Object.assign(D,{brand:'',model:'',size:'',survey:false,carNote:'',unreg:false,estSize:'',year:''});ui.brandPick=keep;ui.carQ='';ui.mfilter='';changed();render()},
+ brand:t=>{const b=t.dataset.b;if(D.brand&&D.brand!==b)Object.assign(D,{brand:'',model:'',size:'',survey:false,carNote:''});ui.brandPick=b;ui.carQ='';ui.mfilter='';render();window.scrollTo(0,0)},
+ allBrands:()=>{ui.allBrands=true;render()},
+ unreg:()=>{const q=ui.carQ.trim();Object.assign(D,{unreg:true,brand:ui.brandPick||'',model:ui.brandPick?q:'',size:'',survey:true,carNote:'',estSize:''});if(!ui.brandPick&&q){const w=q.split(/\s+/);const bb=Object.keys(brands()).find(b=>nk(b)===nk(w[0]));if(bb){D.brand=bb;D.model=w.slice(1).join(' ')}else D.model=q}changed();render()},
+ estSize:t=>{D.estSize=D.estSize===t.dataset.k?'':t.dataset.k;changed();render()},
+ mflt:t=>{ui.mflt=t.dataset.k;render()},
+ verify:t=>{const m=S.models[+t.dataset.i];m.st='V';logChange('Verifikasi '+m.b+' '+m.m,'estimasi','terverifikasi');saveS();document.getElementById('mlist').innerHTML=adminModels();toast('Ditandai terverifikasi')},
+ regFromQuote:t=>{const r=Q.find(q=>q.id===t.dataset.id);ui.tab='mobil';render();document.getElementById('nb').value=r.draft.brand;document.getElementById('nm').value=r.draft.model;if(r.draft.estSize)document.querySelectorAll('#nsz .chip').forEach(c=>c.classList.toggle('on',c.dataset.k===r.draft.estSize));document.getElementById('nb').scrollIntoView({block:'center'});toast('Cek kategori lalu simpan')},
+ exportDb:()=>saveFile('database-mobil-rdpainthouse-'+new Date().toISOString().slice(0,10)+'.csv',dbCsv()),
+ copyDb:async()=>{if(await copyText(JSON.stringify({version:S.masterVersion,models:S.models})))toast('Database (JSON) disalin')},
+ resetMaster:()=>modal({title:'Kembalikan database master?',html:'<p class="mute">Daftar mobil kembali ke '+S.models.length+' → '+MASTER.length+' model sesuai file master '+esc(MASTER_VERSION)+'. Perubahan klasifikasi yang dibuat Owner akan hilang. Harga panel dan penawaran tidak berubah.</p>',ok:'Kembalikan',danger:true,onOk:()=>{S.models=masterModels();S.masterVersion=MASTER_VERSION;logChange('Database mobil dikembalikan ke master','-',MASTER_VERSION);saveS();render();toast('Database master dipulihkan')}}),
+ color:t=>{D.color=t.dataset.c;changed();render()},
+ inc:t=>{const p=S.panels.find(x=>x.id===t.dataset.p);const l=D.lines[p.id]||(D.lines[p.id]={qty:0,pos:[]});if(l.qty>=maxQty(p))return;
+   if(p.pos&&p.pos.length){const nx=p.pos.find(x=>l.pos.indexOf(x)<0);if(nx)l.pos.push(nx);l.qty=l.pos.length}else l.qty++;changed();render()},
+ dec:t=>{const l=D.lines[t.dataset.p];if(!l||!l.qty)return;if(l.pos.length){l.pos.pop();l.qty=l.pos.length}else l.qty--;if(!l.qty)delete D.lines[t.dataset.p];changed();render()},
+ pos:t=>{const p=S.panels.find(x=>x.id===t.dataset.p);const l=D.lines[p.id];const ps=t.dataset.ps;const i=l.pos.indexOf(ps);if(i>=0)l.pos.splice(i,1);else l.pos.push(ps);l.pos.sort((a,b)=>p.pos.indexOf(a)-p.pos.indexOf(b));l.qty=l.pos.length;if(!l.qty)delete D.lines[p.id];changed();render()},
+ addOther:()=>{D.others.push({name:'',qty:1,price:''});changed();render()},
+ delOther:t=>{D.others.splice(+t.dataset.i,1);changed();render()},
+ otherName:t=>{D.others[+t.dataset.i].name=t.dataset.n;changed();render()},
+ opt:t=>{const k=t.dataset.k;if(k==='std'){D.std=true;D.dent.on=D.special.on=D.blend.on=D.heavy.on=false}else{D[k].on=!D[k].on;if(D[k].on)D.std=false;if(!D.dent.on&&!D.special.on&&!D.blend.on&&!D.heavy.on)D.std=true}changed();render()},
+ dentNom:t=>{D.dent.nominal=+t.dataset.n;changed();render()},
+ dentQ:t=>{const u=Math.max(1,unitCount(D));D.dent.qty=Math.min(u,Math.max(1,D.dent.qty+ +t.dataset.d));changed();render()},
+ specPct:t=>{D.special.pct=+t.dataset.n;changed();render()},
+ coat:t=>{D.coating.want=t.dataset.w==='1';if(D.coating.want&&!D.coating.pkg&&S.coating.length)D.coating.pkg=S.coating[0].id;changed();render()},
+ pkg:t=>{D.coating.pkg=t.dataset.id;changed();render()},
+ disc:t=>{D.disc.type=t.dataset.t;if(t.dataset.t==='pct')D.disc.pct=+t.dataset.n;changed();render()},
+ wa:(t,e)=>{
+   const id=t.dataset.id;const kind=t.dataset.kind;
+   if(!id){ // wizard
+     if(!custOk()){e.preventDefault();return}
+     const n=normWa(D.wa);
+     if(!salesName.trim()){e.preventDefault();needSales(()=>{render();toast('Nama tersimpan. Ketuk Kirim Penawaran WA lagi')});return}
+     const res=saveDraftRec();t.href=waLink(n,buildMsg(res.rec,'est',S));
+     setTimeout(()=>{render();askSent(res.rec)},400);return}
+   const r=Q.find(q=>q.id===id);const n=normWa(r.draft.wa);if(!n){e.preventDefault();toast('Nomor WhatsApp customer tidak valid — perbaiki lewat Revisi');return}
+   if(kind==='fin'&&!(r.approved&&FINAL_OK.indexOf(r.status)>=0)){e.preventDefault();return}
+   t.href=waLink(n,buildMsg(r,kind,S));
+   if(kind==='est')setTimeout(()=>askSent(r),400);else setTimeout(()=>modal({title:'Konfirmasi final sudah dikirim?',html:'<p class="mute">Jika customer setuju, ubah status ke "Customer Setuju".</p>',ok:'Tandai Customer Setuju',cancel:'Nanti',onOk:()=>{setStatus(r,'Customer Setuju');render()}}),400)},
+ copy:()=>custOk()&&needSales(async()=>{const res=saveDraftRec();if(await copyText(buildMsg(res.rec,'est',S)))toast('Penawaran disalin & tersimpan ('+res.rec.no+')');render()}),
+ copyRec:async t=>{const r=Q.find(q=>q.id===t.dataset.id);if(await copyText(buildMsg(r,t.dataset.kind,S)))toast('Pesan disalin')},
+ saveDraft:()=>custOk()&&needSales(()=>{const res=saveDraftRec();toast(res.isNew?'Tersimpan sebagai '+res.rec.no:(res.rec.rev>1?'Tersimpan · revisi ke-'+res.rec.rev:'Sudah tersimpan'));render()}),
+ askApprove:()=>custOk()&&needSales(()=>{const sv=compute(D,S).survey;const res=saveDraftRec(sv?'Menunggu Survei':'Menunggu Konfirmasi');toast((sv?'Diajukan survei ke Owner (':'Dikirim ke Owner untuk disetujui (')+res.rec.no+')');render()}),
+ askApproveRec:t=>{const r=Q.find(q=>q.id===t.dataset.id);setStatus(r,'Menunggu Konfirmasi');toast('Menunggu persetujuan Owner');render()},
+ finalInfo:()=>toast('Aktif setelah Owner menyetujui harga di menu Admin'),
+ open:t=>{ui.detail=t.dataset.id;go('detail')},
+ revise:t=>{const r=Q.find(q=>q.id===t.dataset.id);D=clone(r.draft);D.id=r.id;ui.step=2;ui.showErr=false;ui.dirty=false;saveD();go('baru')},
+ approve:t=>{const r=Q.find(q=>q.id===t.dataset.id);if(r.calc.unpriced){toast('Isi harga hasil survei dulu: tekan Revisi');return}r.approved={at:Date.now()};setStatus(r,'Harga Disetujui','Owner');toast('Harga disetujui · template final aktif');render()},
+ hs:t=>{ui.hs=t.dataset.s;render()},
+ exportCsv:()=>exportCsv(),
+ copyCsv:async()=>{if(await copyText(csv()))toast('CSV disalin')},
+ delSample:()=>modal({title:'Hapus data contoh?',html:'<p class="mute">'+Q.filter(r=>r.sample).length+' penawaran contoh akan dihapus. Data asli tidak tersentuh.</p>',ok:'Hapus data contoh',danger:true,onOk:()=>{Q=Q.filter(r=>!r.sample);saveQ();toast('Data contoh dihapus');render()}}),
+ unlock:()=>{const v=document.getElementById('pin').value;if(v===String(S.pin)){ui.admin=true;render()}else toast('PIN salah')},
+ lock:()=>{ui.admin=false;go('home')},
+ tab:t=>{ui.tab=t.dataset.t;render()},
+ addPanel:()=>{S.panels.push({id:'p'+uid(),name:'Panel baru',unit:'panel baru',icon:'other',prices:{S:0,M:0,L:0,XL:0},pos:[],max:1});saveS();render();toast('Panel ditambahkan — isi nama & harga')},
+ delPanel:t=>{const p=S.panels[+t.dataset.i];modal({title:'Hapus panel "'+p.name+'"?',html:'<p class="mute">Penawaran lama tidak berubah.</p>',ok:'Hapus',danger:true,onOk:()=>{S.panels.splice(+t.dataset.i,1);saveS();render()}})},
+ nsz:t=>{document.querySelectorAll('#nsz .chip').forEach(c=>c.classList.toggle('on',c===t))},
+ addModel:()=>{let b=document.getElementById('nb').value.trim(),m=document.getElementById('nm').value.trim();const k=(document.querySelector('#nsz .chip.on')||{}).dataset;if(!b||!m){toast('Isi merek dan model');return}
+   const eb=Object.keys(brands()).find(x=>nk(x)===nk(b));if(eb)b=eb;
+   if(S.models.some(x=>nk(x.b+x.m)===nk(b+m))){toast('Model sudah ada di database');return}const sz=k?k.k:'M';const sv=document.getElementById('nsv').checked||sz==='SP';
+   S.models.push({b,m,s:sz,sv,n:document.getElementById('nnote').value.trim(),st:'V'});logChange('Tambah model '+b+' '+m,'-',sizeName(sz)+(sv?' + survei':''));saveS();ui.mbrand=b;ui.mq='';render();toast('Tersimpan: '+b+' '+m+' → '+sizeName(sz))},
+ delModel:t=>{const m=S.models[+t.dataset.i];logChange('Hapus model '+m.b+' '+m.m,sizeName(m.s),'dihapus');S.models.splice(+t.dataset.i,1);saveS();const ml=document.getElementById('mlist');if(ml)ml.innerHTML=adminModels()},
+ addCoat:()=>{S.coating.push({id:'c'+uid(),name:'',price:null,note:''});saveS();render()},
+ delCoat:t=>{S.coating.splice(+t.dataset.i,1);saveS();render()},
+ tplReset:t=>{S.templates[t.dataset.k]=DEFAULT_TPL[t.dataset.k];saveS();render();toast('Template dikembalikan')},
+ tplPreview:t=>{const r=Q[0];if(!r){toast('Buat 1 penawaran dulu untuk contoh');return}modal({title:'Contoh pesan',html:'<textarea class="inp" style="min-height:320px" readonly>'+esc(buildMsg(r,t.dataset.k,S))+'</textarea>',cancel:'Tutup'})},
+ backup:async()=>{if(await copyText(JSON.stringify({app:'rdph-mobil',at:Date.now(),settings:S,quotes:Q})))toast('Cadangan disalin — simpan di catatan/WA')},
+ restore:()=>{try{const o=JSON.parse(document.getElementById('imp').value);if(!o||!Array.isArray(o.quotes)||!o.settings||!o.settings.panels)throw 0;modal({title:'Pulihkan data?',html:'<p class="mute">Data di HP ini akan diganti dengan cadangan ('+o.quotes.length+' penawaran).</p>',ok:'Pulihkan',danger:true,onOk:()=>{S=o.settings;Q=o.quotes;saveS();saveQ();toast('Data dipulihkan');render()}})}catch(e){toast('Teks cadangan tidak valid')}},
+ wipeQ:()=>modal({title:'Hapus semua penawaran?',html:'<p class="mute">'+Q.length+' penawaran akan dihapus permanen dari HP ini. Ekspor CSV dulu jika perlu.</p>',ok:'Hapus semua',danger:true,onOk:()=>{Q=[];saveQ();render();toast('Semua penawaran dihapus')}}),
+ resetS:()=>modal({title:'Kembalikan pengaturan awal?',html:'<p class="mute">Harga panel, model mobil, biaya tambahan, coating, template, dan PIN kembali ke awal. Riwayat penawaran tetap.</p>',ok:'Kembalikan',danger:true,onOk:()=>{S=defaultSettings();saveS();render();toast('Pengaturan awal dipulihkan')}}),
+ setPin:()=>{const v=document.getElementById('np').value.trim();if(!/^\d{4,8}$/.test(v)){toast('PIN 4–8 angka');return}S.pin=v;saveS();document.getElementById('np').value='';toast('PIN diganti')}
+};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;if(t.tagName!=='A')e.preventDefault();const f=ACT[t.dataset.act];if(f)f(t,e)});
+function setPath(obj,path,val){const ks=path.split('.');let o=obj;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=val}
+function fmtMoneyInput(el){const n=toNum(el.value);const pos=el.value.length-el.selectionStart;el.value=n?rp(n).replace('Rp',''):'';try{const p=Math.max(0,el.value.length-pos);el.setSelectionRange(p,p)}catch(e){}}
+document.addEventListener('input',e=>{
+  const t=e.target;const f=t.dataset.f;if(!f)return;
+  if(t.dataset.money)fmtMoneyInput(t);
+  const v=t.value;
+  if(f==='salesName'){salesName=v;store(K.sales,v.trim());return}
+  if(f==='carQ'){ui.carQ=v;if(v.trim())ui.brandPick='';document.getElementById('carRes').innerHTML=carResults();return}
+  if(f==='mfilter'){ui.mfilter=v;document.getElementById('mres').innerHTML=brandModels();return}
+  if(f.indexOf('ov.')===0){const id=f.slice(3);if(D.lines[id])D.lines[id].ov=toNum(v);changed();updateLive();return}
+  if(f==='hq'){ui.hq=v;document.getElementById('hlist').innerHTML=histList(histFiltered());return}
+  if(f==='pq'){ui.pq=v;document.getElementById('plist').innerHTML=modelGroups();return}
+  if(f==='mq'){ui.mq=v;if(!document.getElementById('mlist'))return;document.getElementById('mlist').innerHTML=adminModels();return}
+  if(f.indexOf('other.')===0){const p=f.split('.');D.others[+p[1]][p[2]]=t.dataset.money?toNum(v):v;changed();updateLive();return}
+  if(f.indexOf('.')>0){setPath(D,f,t.dataset.money?toNum(v):v)}else D[f]=v;
+  if(f==='wa'){const h=waHint();const el=document.getElementById('waHint');el.className='hint '+h[0];el.textContent=h[1]}
+  if((f==='customer'||f==='wa')&&ui.custErr){const er=t.parentElement.querySelector('.err');if(er)er.textContent=errsCust()[f]||''}
+  changed();updateLive();
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.ch==='status'){const r=Q.find(q=>q.id===t.dataset.id);const s=t.value;if(s==='Harga Disetujui'&&!ui.admin){toast('Hanya Owner yang bisa menyetujui');render();return}if(s==='Harga Disetujui')r.approved={at:Date.now()};setStatus(r,s,ui.admin&&s==='Harga Disetujui'?'Owner':salesName);toast('Status: '+s);render();return}
+  if(t.dataset.ch==='mbrand'){ui.mbrand=t.value;document.getElementById('mlist').innerHTML=adminModels();return}
+  if(t.id==='impFile'&&t.files&&t.files[0]){if(ui.admin)importFile(t.files[0]);t.value='';return}
+  if(t.dataset.ch==='official'){S.priceOfficial=t.checked;saveS();toast(t.checked?'Harga ditandai resmi':'Harga ditandai usulan');return}
+  const p=t.dataset.s;if(!p||!ui.admin)return;
+  let v=t.value;const ty=t.dataset.type;
+  if(ty==='num')v=toNum(v);
+  else if(ty==='numnull')v=toNum(v)||null;
+  else if(ty==='numlist'){v=v.split(/[,;\s]+/).map(toNum).filter(Boolean);if(!v.length){toast('Isi minimal 1 angka');render();return}v=Array.from(new Set(v)).sort((a,b)=>a-b)}
+  else if(ty==='list')v=v.split(',').map(x=>x.trim()).filter(Boolean);
+  else if(ty==='bool')v=t.checked;
+  {const ks=p.split('.');let o=S;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];const old=o[ks[ks.length-1]];
+   if(/^panels\.\d+\.prices\./.test(p)&&old!==v){const pn=S.panels[+ks[1]];logChange('Harga '+pn.name+' · '+sizeName(ks[3]),rp(old),rp(v))}
+   if(/^models\.\d+\.(s|sv)$/.test(p)&&old!==v){const m=S.models[+ks[1]];logChange((ks[2]==='s'?'Kategori ':'Wajib survei ')+m.b+' '+m.m,ks[2]==='s'?sizeName(old):(old?'Ya':'Tidak'),ks[2]==='s'?sizeName(v):(v?'Ya':'Tidak'));m.st='V'}}
+  setPath(S,p,v);
+  if(/^panels\.\d+\.name$/.test(p)){const i=+p.split('.')[1];S.panels[i].unit=String(v).toLowerCase()}
+  if(/^panels\.\d+\.pos$/.test(p)){const i=+p.split('.')[1];S.panels[i].max=v.length||1}
+  saveS();toast('Tersimpan');
+  if(ty==='numlist'||ty==='list')render();
+});
+window.addEventListener('popstate',()=>{const h=location.hash.slice(1);const v=['baru','riwayat','harga','admin','detail'].indexOf(h)>=0?h:'home';if(v==='baru'&&!D){D=newDraft()}if(v==='detail'&&!ui.detail){ui.view='riwayat'}else ui.view=v;render()});
+(function init(){const h=location.hash.slice(1);if(h==='baru'&&D)ui.view='baru';else if(['riwayat','harga','admin'].indexOf(h)>=0)ui.view=h;render()})();
+}
+</script>
+</body>
+</html>
